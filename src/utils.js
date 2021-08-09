@@ -43,3 +43,102 @@ export function validateAccountName(value) {
   }
   return null;
 }
+
+export function voiceText(wif,account,text,reply,share,beneficiaries,loop,callback){
+  reply=typeof reply === 'undefined'?false:reply;
+  share=typeof share === 'undefined'?false:share;
+  beneficiaries=typeof beneficiaries === 'undefined'?false:beneficiaries;
+  loop=typeof loop === 'undefined'?false:loop;
+  callback=typeof callback === 'undefined'?function(){}:callback;
+
+  let use_previous=function(wif,account,text,reply,share,beneficiaries,previous,callback){
+    let object={
+      'p':previous,
+      //'t':'t',//text as default type
+      'd':{
+        't':text,
+      }
+    };
+    if(reply){
+      object['d']['r']=reply;
+    }
+    else{//share conflict with reply
+      if(share){
+        object['d']['s']=share;
+      }
+    }
+    if(beneficiaries){//json example: [{"account":"committee","weight":1000}]
+      object['d']['b']=beneficiaries;
+    }
+    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),function(err,result){
+      callback(!err);
+    });
+  }
+  if(false!==loop){
+    use_previous(wif,account,text,reply,share,beneficiaries,loop,callback);
+  }
+  else{
+    viz.api.getAccount(account,'V',function(err,result){
+      if(!err){
+        use_previous(wif,account,text,reply,share,beneficiaries,result.custom_sequence_block_num,callback);
+      }
+      else{
+        callback(false);
+      }
+    });
+  }
+}
+
+export function voicePublication(wif,account,title,markdown,description,image,reply,share,beneficiaries,loop,callback){
+  description=typeof description === 'undefined'?false:description;
+  image=typeof image === 'undefined'?false:image;
+  reply=typeof reply === 'undefined'?false:reply;
+  share=typeof share === 'undefined'?false:share;
+  beneficiaries=typeof beneficiaries === 'undefined'?false:beneficiaries;
+  loop=typeof loop === 'undefined'?false:loop;
+  callback=typeof callback === 'undefined'?function(){}:callback;
+
+  let use_previous=function(wif,account,title,markdown,description,image,reply,share,beneficiaries,previous,callback){
+    let object={
+      'p':previous,
+      't':'p',//text as default type
+      'd':{
+        't':title,
+        'm':markdown,
+      }
+    };
+		if(description){
+			object['d']['d']=description;
+		}
+		if(image){
+			object['d']['i']=image;
+		}
+    if(reply){
+      object['d']['r']=reply;
+    }
+    else{//share conflict with reply
+      if(share){
+        object['d']['s']=share;
+      }
+    }
+    if(beneficiaries){//json example: [{"account":"committee","weight":1000}]
+      object['d']['b']=beneficiaries;
+    }
+    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),function(err,result){
+      callback(!err);
+    });
+  }
+  if(false!==loop){
+    use_previous(wif,account,title,markdown,description,image,reply,share,beneficiaries,loop,callback);
+  }
+  else{
+    viz.api.getAccount(account,'V',function(err,result){
+      if(!err){
+        use_previous(wif,account,title,markdown,description,image,reply,share,beneficiaries,result.custom_sequence_block_num,callback);
+      }
+      else{
+        callback(false);
+      }
+    });
+  }
+}

@@ -1164,6 +1164,53 @@ console.log(isValidUsername);
 // => 'Account name should be longer.'
 ```
 
+### Post Voice Text
+```
+//wif,account,text,reply,share,beneficiaries,loop,callback
+viz.utils.voiceText('5K...','on1x','Just a test from viz-js-lib',false,false,false,false,function(result){console.log(result)});
+```
+
+### Post Voice Publication
+```
+//wif,account,text,reply,share,beneficiaries,loop,callback
+let wif='5K...';
+let account='on1x';
+let markdown=`Well, Voice protocol markdown have **bold**, __italic__, ~~stroke~~ and \`code\`
+
+## Headers 2
+
+### And 3
+
+Also we got:
+
+> Quotes and
+
+>> Second style for citation
+
+Support lists:
+
+* Unordered
+* as ordinary
+* items
+
+And ordered, ofc:
+
+*n Yes
+*n it is!
+
+After all, simple images:
+![Alt text for image](https://viz.world/ubi-circle-300.jpg)
+
+Paragraph
+with
+multiline
+
+...and #en #example tags support :)`;
+
+//wif,account,title,markdown,description,image,reply,share,beneficiaries,loop,callback
+viz.utils.voicePublication(wif,account,'Test publication from viz-js-lib',markdown,false,false,false,false,false,false,function(result){console.log(result)});
+```
+
 # deprecated api methods
 ## Content
 
