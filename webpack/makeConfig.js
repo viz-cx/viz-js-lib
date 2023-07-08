@@ -1,5 +1,6 @@
 'use strict';
 const Visualizer = require('webpack-visualizer-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const _ = require('lodash');
 const path = require('path');
 const webpack = require('webpack');
@@ -21,15 +22,7 @@ function makePlugins(options) {
   if (!isDevelopment) {
     plugins = plugins.concat([
       new webpack.optimize.DedupePlugin(),
-      new webpack.optimize.UglifyJsPlugin({
-        output: {
-          comments: false,
-        },
-        minimize: true,
-        compress: {
-          warnings: false,
-        }
-      }),
+      new UglifyJSPlugin({uglifyOptions: { ...options }}),
       new webpack.optimize.AggressiveMergingPlugin(),
     ]);
   }
