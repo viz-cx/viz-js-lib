@@ -1168,6 +1168,42 @@ console.log(isValidUsername);
 ```
 //wif,account,text,reply,share,beneficiaries,loop,callback
 viz.utils.voiceText('5K...','on1x','Just a test from viz-js-lib',false,false,false,false,function(result){console.log(result)});
+
+### Add Voice Event
+```
+//get last V/Voice custom protocol block sequencer from account
+viz.api.getAccount(account,'V',function(err,result){
+  if(!err){
+    let object={
+      'p':previous,
+      'e':event_type,
+      'b':target_block,//block to hide, edit or append
+      'd':{//new data for edited object
+        't':'Just a SECOND test from viz-js-lib',
+      }
+    };
+    let new_data=JSON.stringify(object);
+
+    //wif,account,event_type,target_account,target_block,data,loop,callback
+    //event_type: h - hide, e - edit, a - append
+    viz.utils.voiceText('5K...','on1x','e','on1x',result.custom_sequence_block_num,new_data,false,false,false,false,function(result){console.log(result)});
+  }
+});
+
+### Post Voice Encoded Text
+```
+//wif,account,passphrase,comment,text,reply,share,beneficiaries,loop,callback
+let passphrase='decode me :)';
+let comment='You see a bottle labeled, "decode me :)"';
+viz.utils.voiceEncodedText('5K...','on1x',passphrase,comment,'Just a test from viz-js-lib',false,false,false,false,function(result){console.log(result)});
+```
+
+### Post Voice Encoded Text
+```
+//wif,account,passphrase,comment,text,reply,share,beneficiaries,loop,callback
+let passphrase=['test1','pass2','password3'];
+let comment=['Do your 1 test','Type your 2 pass','Enter your 3 password'];
+viz.utils.voiceEncodedText('5K...','on1x',passphrase,comment,'Just a test from viz-js-lib',false,false,false,false,function(result){console.log(result)});
 ```
 
 ### Post Voice Publication
@@ -1209,6 +1245,14 @@ multiline
 
 //wif,account,title,markdown,description,image,reply,share,beneficiaries,loop,callback
 viz.utils.voicePublication(wif,account,'Test publication from viz-js-lib',markdown,false,false,false,false,false,false,function(result){console.log(result)});
+
+/*
+//encoded publication work same way as text
+
+let passphrase='decode me :)';
+let comment='You see a bottle labeled, "decode me :)"';
+viz.utils.voiceEncodedPublication(wif,account,passphrase,comment,'Test publication from viz-js-lib',markdown,false,false,false,false,false,false,function(result){console.log(result)});
+*/
 ```
 
 # deprecated api methods

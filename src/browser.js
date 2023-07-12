@@ -1,10 +1,11 @@
-const api = require("./api");
-const auth = require("./auth");
-const broadcast = require("./broadcast");
-const config = require("./config");
-const formatter = require("./formatter")(api);
+const api = require('./api');
+const auth = require('./auth');
+const broadcast = require('./broadcast');
+const formatter = require('./formatter')(api);
 const memo = require('./auth/memo');
-const utils = require("./utils");
+const aes = require('./auth/ecc/src/aes');
+const config = require('./config');
+const utils = require('./utils');
 
 const viz = {
   api,
@@ -13,14 +14,15 @@ const viz = {
   config,
   formatter,
   memo,
+  aes,
   utils
 };
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.viz = viz;
 }
 
-if (typeof global !== "undefined") {
+if (typeof global !== 'undefined') {
   global.viz = viz;
 }
 

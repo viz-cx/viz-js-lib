@@ -3,6 +3,7 @@ const auth = require('./auth');
 const broadcast = require('./broadcast');
 const formatter = require('./formatter')(api);
 const memo = require('./auth/memo');
+const aes = require('./auth/ecc/src/aes');
 const config = require('./config');
 const utils = require('./utils');
 
@@ -12,6 +13,7 @@ module.exports = {
   broadcast,
   formatter,
   memo,
+  aes,
   config,
   utils,
 };

@@ -100,6 +100,36 @@ function crypt(private_key, public_key, nonce, message, checksum) {
     return {nonce, message, checksum: check}
 }
 
+/**
+    @data {string} base64
+    @passphrase {string} utf8
+    @return {string} utf8
+*/
+export function simpleDecoder(data,passphrase){
+    let buff=new Buffer(data, 'base64');
+    let passphrase_sha512=hash.sha512(passphrase);
+    let key = passphrase_sha512.slice(0, 32);
+    let iv = passphrase_sha512.slice(32, 48);
+    let decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    let message = Buffer.concat([decipher.update(buff), decipher.final()]);
+    return new TextDecoder('utf-8', { fatal: true }).decode(message);
+}
+
+/**
+    @data {string} utf8
+    @passphrase {string} utf8
+    @return {string} base64
+*/
+export function simpleEncoder(data,passphrase){
+    let passphrase_sha512=hash.sha512(passphrase);
+    let key = passphrase_sha512.slice(0, 32);
+    let iv = passphrase_sha512.slice(32, 48);
+    let buff=new Buffer(data,'utf-8');
+    let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    let encrypted = Buffer.concat([cipher.update(buff), cipher.final()]);
+    return encrypted.toString('base64');
+}
+
 /** This method does not use a checksum, the returned data must be validated some other way.
     @arg {string|Buffer} ciphertext - binary format
     @return {Buffer}

@@ -23,6 +23,24 @@ viz.api.getAccounts(['ned', 'dan'], function(err, response){
 });
 </script>
 ```
+## Build
+
+```
+apt-get install -y webpack
+apt-get install -y npm
+apt-get install -y git
+
+npm install -g n
+n v8.4.0
+PATH="$PATH"
+
+git clone https://github.com/VIZ-Blockchain/viz-js-lib.git
+cd viz-js-lib/
+
+npm install
+npm run build-browser
+ls dist
+```
 
 ## Server
 
