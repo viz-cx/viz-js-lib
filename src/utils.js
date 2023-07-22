@@ -302,7 +302,7 @@ export function voiceEncodedPublication(wif,account,passphrase,comment,title,mar
       for(let i in passphrase){
         let number=i;
         if(0==number){
-          object['nt']='t';//text
+          object['nt']='p';//publication
         }
         else{
           object['nt']='e';//encoded
