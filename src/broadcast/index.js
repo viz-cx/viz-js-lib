@@ -52,18 +52,34 @@ Broadcaster._prepareTransaction = function Broadcaster$_prepareTransaction(tx) {
     .then((properties) => {
       // Set defaults on the transaction
       const chainDate = new Date(properties.time + 'Z');
-      const refBlockNum = (properties.head_block_number - 3) & 0xFFFF;
-      return nodeApi.getBlockAsync(properties.head_block_number - 2).then((block) => {
-        const headBlockId = block.previous;
-        return Object.assign({
-          ref_block_num: refBlockNum,
-          ref_block_prefix: new Buffer(headBlockId, 'hex').readUInt32LE(4),
-          expiration: new Date(
-            chainDate.getTime() +
-            60 * 1000
-          ),
-        }, tx);
-      });
+      let need_get_block=true;
+      if(typeof properties.last_irreversible_block_ref_num !== 'undefined') {
+        if(0 != properties.last_irreversible_block_ref_num){
+          need_get_block=false;
+          return Object.assign({
+            ref_block_num: properties.last_irreversible_block_ref_num,
+            ref_block_prefix: properties.last_irreversible_block_ref_prefix,
+            expiration: new Date(
+              chainDate.getTime() +
+              60 * 1000
+            ),
+          }, tx);
+        }
+      }
+      if(need_get_block){
+        const refBlockNum = (properties.head_block_number - 3) & 0xFFFF;
+        return nodeApi.getBlockAsync(properties.head_block_number - 2).then((block) => {
+          const headBlockId = block.previous;
+          return Object.assign({
+            ref_block_num: refBlockNum,
+            ref_block_prefix: new Buffer(headBlockId, 'hex').readUInt32LE(4),
+            expiration: new Date(
+              chainDate.getTime() +
+              60 * 1000
+            ),
+          }, tx);
+        });
+      }
     });
 };
 
