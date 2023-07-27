@@ -171,6 +171,16 @@ module.exports = [
   },
   {
     "api": "database_api",
+    "method": "get_irreversible_block_header",
+    "params": ["blockNum"]
+  },
+  {
+    "api": "database_api",
+    "method": "get_irreversible_block",
+    "params": ["blockNum"]
+  },
+  {
+    "api": "database_api",
     "method": "get_config"
   },
   {
