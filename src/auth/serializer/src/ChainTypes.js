@@ -70,7 +70,11 @@ ChainTypes.operations = {
   buy_account: 56,
   account_sale: 57,
   use_invite_balance: 58,
-  expire_escrow_ratification: 59
+  expire_escrow_ratification: 59,
+  fixed_award: 60,
+  target_account_sale: 61,
+  bid: 62,
+  outbid: 63
 };
 
 //types.hpp

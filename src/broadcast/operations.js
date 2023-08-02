@@ -385,6 +385,19 @@ module.exports = [
     ]
   },
   {
+    "roles": ["regular"],
+    "operation": "fixed_award",
+    "params": [
+      "initiator",
+      "receiver",
+      "reward_amount",
+      "max_energy",
+      "custom_sequence",
+      "memo",
+      "beneficiaries"
+    ]
+  },
+  {
     "roles": ["active"],
     "operation": "set_paid_subscription",
     "params": [
@@ -413,6 +426,17 @@ module.exports = [
     "params": [
       "account",
       "account_seller",
+      "account_offer_price",
+      "account_on_sale"
+    ]
+  },
+  {
+    "roles": ["master"],
+    "operation": "target_account_sale",
+    "params": [
+      "account",
+      "account_seller",
+      "target_buyer",
       "account_offer_price",
       "account_on_sale"
     ]

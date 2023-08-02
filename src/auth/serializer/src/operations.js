@@ -619,6 +619,16 @@ let award = new Serializer("award", {
     beneficiaries: set(beneficiaries)
 });
 
+let fixed_award = new Serializer("fixed_award", {
+    initiator: string,
+    receiver: string,
+    reward_amount: asset,
+    max_energy: uint16,
+    custom_sequence: uint64,
+    memo: string,
+    beneficiaries: set(beneficiaries)
+});
+
 const chain_properties_hf4 = new Serializer(
     1, {
         account_creation_fee: asset,
@@ -762,6 +772,16 @@ let set_account_price = new Serializer(
     }
 );
 
+let target_account_sale = new Serializer(
+    "target_account_sale", {
+        account: string,
+        account_seller: string,
+        target_buyer: string,
+        account_offer_price: asset,
+        account_on_sale: bool
+    }
+);
+
 let set_subaccount_price = new Serializer(
     "set_subaccount_price", {
         account: string,
@@ -807,6 +827,22 @@ let expire_escrow_ratification = new Serializer(
         token_amount: asset,
         fee: asset,
         ratification_deadline: time_point_sec
+    }
+);
+
+let bid = new Serializer(
+    "bid", {
+        account: string,
+        bidder: string,
+        bid: asset
+    }
+);
+
+let outbid = new Serializer(
+    "outbid", {
+        account: string,
+        bidder: string,
+        bid: asset
     }
 );
 
@@ -870,7 +906,11 @@ operation.st_operations = [
     buy_account,
     account_sale,
     use_invite_balance,
-    expire_escrow_ratification
+    expire_escrow_ratification,
+    fixed_award,
+    target_account_sale,
+    bid,
+    outbid
 ];
 
 //# -------------------------------
