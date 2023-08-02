@@ -294,6 +294,11 @@ module.exports = [
   },
   {
     "api": "database_api",
+    "method": "get_accounts_on_auction",
+    "params": ["from", "limit"]
+  },
+  {
+    "api": "database_api",
     "method": "get_subaccounts_on_sale",
     "params": ["from", "limit"]
   },
