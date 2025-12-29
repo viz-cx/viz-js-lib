@@ -1,7 +1,9 @@
 {
   "presets": [
-    "es2015",
-    "es2017",
-    "env"
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": [">0.25%", "not dead"]
+      }
+    }]
   ]
 }

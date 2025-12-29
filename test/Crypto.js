@@ -1,4 +1,5 @@
-import { Aes, PrivateKey, PublicKey, Signature } from "../src/auth/ecc"
+import ecc from "../src/auth/ecc/index.js"
+const { PrivateKey, PublicKey, Signature } = ecc
 import assert from "assert"
 
 var secureRandom = require('secure-random');
@@ -95,4 +96,3 @@ var min_time_elapsed = function(f){
     );
     return ret;
 };
-

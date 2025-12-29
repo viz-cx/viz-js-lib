@@ -1,2 +1,2 @@
-const makeConfig = require('./webpack/makeConfig');
-exports = module.exports = makeConfig();
+import makeConfig from './webpack/makeConfig.js';
+export default makeConfig();
