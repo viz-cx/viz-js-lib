@@ -1,8 +1,8 @@
-import api from "../api";
+import api from "../api/index.js";
 
 const defaultWeight = 1;
 
-exports = module.exports = Broadcaster => {
+export default Broadcaster => {
   Broadcaster.addAccountAuth = (
     activeWif,
     username,

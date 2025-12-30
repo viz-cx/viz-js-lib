@@ -1,4 +1,5 @@
-import {Aes} from './auth/ecc';
+import { simpleEncoder } from './auth/ecc/src/aes.js';
+import viz from './api/index.js';
 
 const snakeCaseRe = /_([a-z])/g;
 export function camelCase(str) {
@@ -166,7 +167,7 @@ export function voiceEncodedText(wif,account,passphrase,comment,text,reply,share
         }
         console.log('encode object',object,'with passphrase',passphrase[number],'and comment',comment[number]);
         object['d']=JSON.stringify(object);
-        object['d']=Aes.simpleEncoder(object['d'],passphrase[number]);
+        object['d']=simpleEncoder(object['d'],passphrase[number]);
         if(typeof comment === 'object'){
           if(typeof comment[number] === 'string'){
             object['c']=comment[number];
@@ -179,7 +180,7 @@ export function voiceEncodedText(wif,account,passphrase,comment,text,reply,share
       //nt - new type (not needed for default t/text)
       //object['d']['nt']=object['t'];//new type is text
       object['d']=JSON.stringify(object);
-      object['d']=Aes.simpleEncoder(object['d'],passphrase);
+      object['d']=simpleEncoder(object['d'],passphrase);
       if(typeof comment !== 'undefined'){
         object['c']=comment;
       }
@@ -309,7 +310,7 @@ export function voiceEncodedPublication(wif,account,passphrase,comment,title,mar
         }
         console.log('encode object',object,'with passphrase',passphrase[number],'and comment',comment[number]);
         object['d']=JSON.stringify(object);
-        object['d']=Aes.simpleEncoder(object['d'],passphrase[number]);
+        object['d']=simpleEncoder(object['d'],passphrase[number]);
         if(typeof comment === 'object'){
           if(typeof comment[number] === 'string'){
             object['c']=comment[number];
@@ -321,7 +322,7 @@ export function voiceEncodedPublication(wif,account,passphrase,comment,title,mar
     else{
       object['d']['nt']=object['t'];//new type
       object['d']=JSON.stringify(object);
-      object['d']=Aes.simpleEncoder(object['d'],passphrase);
+      object['d']=simpleEncoder(object['d'],passphrase);
       if(typeof comment !== 'undefined'){
         object['c']=comment;
       }

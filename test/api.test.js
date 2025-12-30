@@ -4,7 +4,7 @@ import should from 'should';
 
 import viz, { VIZ } from '../src/api/index.js';
 import config from '../src/config.js';
-import testPost from './test-post.json'
+import testPost from './test-post.json' with { type: 'json' }
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 

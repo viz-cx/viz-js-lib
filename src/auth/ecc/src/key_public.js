@@ -1,11 +1,11 @@
-var BigInteger = require('bigi');
-var ecurve = require('ecurve');
-var secp256k1 = ecurve.getCurveByName('secp256k1');
-BigInteger = require('bigi');
-var base58 = require('bs58');
-var hash = require('./hash');
-var config = require('../../../config');
-var assert = require('assert');
+import bigi from 'bigi';
+import ecurve from 'ecurve';
+const secp256k1 = ecurve.getCurveByName('secp256k1');
+const Point = ecurve.Point;
+import bs58 from 'bs58';
+import { sha512, ripemd160, sha256 } from './hash.js';
+import config from '../../../config.js';
+import assert, { equal, deepEqual } from 'assert';
 
 var G = secp256k1.G
 var n = secp256k1.n
@@ -16,12 +16,12 @@ class PublicKey {
     constructor(Q) { this.Q = Q; }
 
     static fromBinary(bin) {
-        return PublicKey.fromBuffer(new Buffer(bin, 'binary'));
+        return PublicKey.fromBuffer(Buffer.from(bin, 'binary'));
     }
 
     static fromBuffer(buffer) {
         if (buffer.toString("hex")==="000000000000000000000000000000000000000000000000000000000000000000") return new PublicKey(null);
-        return new PublicKey(ecurve.Point.decodeFrom(secp256k1, buffer));
+        return new PublicKey(Point.decodeFrom(secp256k1, buffer));
     }
 
     toBuffer(compressed = this.Q ? this.Q.compressed : null) {
@@ -35,15 +35,15 @@ class PublicKey {
 
     toUncompressed() {
         var buf = this.Q.getEncoded(false);
-        var point = ecurve.Point.decodeFrom(secp256k1, buf);
+        var point = Point.decodeFrom(secp256k1, buf);
         return PublicKey.fromPoint(point);
     }
 
     /** bts::blockchain::address (unique but not a full public key) */
     toBlockchainAddress() {
         var pub_buf = this.toBuffer();
-        var pub_sha = hash.sha512(pub_buf);
-        return hash.ripemd160(pub_sha);
+        var pub_sha = sha512(pub_buf);
+        return ripemd160(pub_sha);
     }
 
     toString(address_prefix = config.get('address_prefix')) {
@@ -57,9 +57,9 @@ class PublicKey {
     toPublicKeyString(address_prefix = config.get('address_prefix')) {
         if(this.pubdata) return address_prefix + this.pubdata
         const pub_buf = this.toBuffer();
-        const checksum = hash.ripemd160(pub_buf);
+        const checksum = ripemd160(pub_buf);
         const addy = Buffer.concat([pub_buf, checksum.slice(0, 4)]);
-        this.pubdata = base58.encode(addy)
+        this.pubdata = bs58.encode(addy)
         return address_prefix + this.pubdata;
     }
 
@@ -85,51 +85,51 @@ class PublicKey {
     */
     static fromStringOrThrow(public_key, address_prefix = config.get('address_prefix')) {
         var prefix = public_key.slice(0, address_prefix.length);
-        assert.equal(
+        equal(
             address_prefix, prefix,
             `Expecting key to begin with ${address_prefix}, instead got ${prefix}`);
             public_key = public_key.slice(address_prefix.length);
 
-        public_key = new Buffer(base58.decode(public_key), 'binary');
+        public_key = Buffer.from(bs58.decode(public_key));
         var checksum = public_key.slice(-4);
         public_key = public_key.slice(0, -4);
-        var new_checksum = hash.ripemd160(public_key);
+        var new_checksum = ripemd160(public_key);
         new_checksum = new_checksum.slice(0, 4);
-        assert.deepEqual(checksum, new_checksum, 'Checksum did not match');
+        deepEqual(checksum, new_checksum, 'Checksum did not match');
         return PublicKey.fromBuffer(public_key);
     }
 
     toAddressString(address_prefix = config.get('address_prefix')) {
         var pub_buf = this.toBuffer();
-        var pub_sha = hash.sha512(pub_buf);
-        var addy = hash.ripemd160(pub_sha);
-        var checksum = hash.ripemd160(addy);
+        var pub_sha = sha512(pub_buf);
+        var addy = ripemd160(pub_sha);
+        var checksum = ripemd160(addy);
         addy = Buffer.concat([addy, checksum.slice(0, 4)]);
-        return address_prefix + base58.encode(addy);
+        return address_prefix + bs58.encode(addy);
     }
 
     toPtsAddy() {
         var pub_buf = this.toBuffer();
-        var pub_sha = hash.sha256(pub_buf);
-        var addy = hash.ripemd160(pub_sha);
-        addy = Buffer.concat([new Buffer([0x38]), addy]); //version 56(decimal)
+        var pub_sha = sha256(pub_buf);
+        var addy = ripemd160(pub_sha);
+        addy = Buffer.concat([Buffer.from([0x38]), addy]); //version 56(decimal)
 
-        var checksum = hash.sha256(addy);
-        checksum = hash.sha256(checksum);
+        var checksum = sha256(addy);
+        checksum = sha256(checksum);
 
         addy = Buffer.concat([addy, checksum.slice(0, 4)]);
-        return base58.encode(addy);
+        return bs58.encode(addy);
     }
 
     child( offset ) {
 
         assert(Buffer.isBuffer(offset), "Buffer required: offset")
-        assert.equal(offset.length, 32, "offset length")
+        equal(offset.length, 32, "offset length")
 
         offset = Buffer.concat([ this.toBuffer(), offset ])
-        offset = hash.sha256( offset )
+        offset = sha256( offset )
 
-        let c = BigInteger.fromBuffer( offset )
+        let c = bigi.fromBuffer( offset )
 
         if (c.compareTo(n) >= 0)
             throw new Error("Child offset went out of bounds, try again")
@@ -151,7 +151,7 @@ class PublicKey {
     // }
 
     static fromHex(hex) {
-        return PublicKey.fromBuffer(new Buffer(hex, 'hex'));
+        return PublicKey.fromBuffer(Buffer.from(hex, 'hex'));
     }
 
     toHex() {
@@ -159,11 +159,11 @@ class PublicKey {
     }
 
     static fromStringHex(hex) {
-        return PublicKey.fromString(new Buffer(hex, 'hex'));
+        return PublicKey.fromString(Buffer.from(hex, 'hex'));
     }
 
     /* </HEX> */
 }
 
 
-module.exports = PublicKey;
+export default PublicKey;

@@ -1,11 +1,11 @@
-var ecurve = require('ecurve');
-var Point = ecurve.Point;
-var secp256k1 = ecurve.getCurveByName('secp256k1');
-var BigInteger = require('bigi');
-var base58 = require('bs58');
-var assert = require('assert');
-var hash = require('./hash');
-var PublicKey = require('./key_public');
+import { Point as _Point, getCurveByName } from 'ecurve';
+var Point = _Point;
+var secp256k1 = getCurveByName('secp256k1');
+import bigi from 'bigi';
+import bs58 from 'bs58';
+import { equal } from 'assert';
+import { sha256, sha512 } from './hash.js';
+import PublicKey from './key_public.js';
 
 var G = secp256k1.G
 var n = secp256k1.n
@@ -28,7 +28,7 @@ class PrivateKey {
         if (buf.length === 0) {
             throw new Error("Empty buffer");
         }
-        return new PrivateKey(BigInteger.fromBuffer(buf));
+        return new PrivateKey(bigi.fromBuffer(buf));
     }
 
     /** @arg {string} seed - any length string.  This is private, the same seed produces the same private key every time.  */
@@ -36,7 +36,7 @@ class PrivateKey {
         if (!(typeof seed === 'string')) {
             throw new Error('seed must be of type string');
         }
-        return PrivateKey.fromBuffer(hash.sha256(seed));
+        return PrivateKey.fromBuffer(sha256(seed));
     }
 
     static isWif(text) {
@@ -53,14 +53,14 @@ class PrivateKey {
         @return {string} Wallet Import Format (still a secret, Not encrypted)
     */
     static fromWif(_private_wif) {
-        var private_wif = new Buffer(base58.decode(_private_wif));
+        var private_wif = new Buffer(bs58.decode(_private_wif));
         var version = private_wif.readUInt8(0);
-        assert.equal(0x80, version, `Expected version ${0x80}, instead got ${version}`);
+        equal(0x80, version, `Expected version ${0x80}, instead got ${version}`);
         // checksum includes the version
         var private_key = private_wif.slice(0, -4);
         var checksum = private_wif.slice(-4);
-        var new_checksum = hash.sha256(private_key);
-        new_checksum = hash.sha256(new_checksum);
+        var new_checksum = sha256(private_key);
+        new_checksum = sha256(new_checksum);
         new_checksum = new_checksum.slice(0, 4);
         if (checksum.toString() !== new_checksum.toString())
             throw new Error('Invalid WIF key (checksum miss-match)')
@@ -73,11 +73,11 @@ class PrivateKey {
         var private_key = this.toBuffer();
         // checksum includes the version
         private_key = Buffer.concat([new Buffer([0x80]), private_key]);
-        var checksum = hash.sha256(private_key);
-        checksum = hash.sha256(checksum);
+        var checksum = sha256(private_key);
+        checksum = sha256(checksum);
         checksum = checksum.slice(0, 4);
         var private_wif = Buffer.concat([private_key, checksum]);
-        return base58.encode(private_wif);
+        return bs58.encode(private_wif);
     }
 
     /** Alias for {@link toWif} */
@@ -108,14 +108,14 @@ class PrivateKey {
         let KB = public_key.toUncompressed().toBuffer()
         let KBP = Point.fromAffine(
             secp256k1,
-            BigInteger.fromBuffer( KB.slice( 1,33 )), // x
-            BigInteger.fromBuffer( KB.slice( 33,65 )) // y
+            bigi.fromBuffer( KB.slice( 1,33 )), // x
+            bigi.fromBuffer( KB.slice( 33,65 )) // y
         )
         let r = this.toBuffer()
-        let P = KBP.multiply(BigInteger.fromBuffer(r))
+        let P = KBP.multiply(bigi.fromBuffer(r))
         let S = P.affineX.toBuffer({size: 32})
         // SHA512 used in ECIES
-        return hash.sha512(S)
+        return sha512(S)
     }
 
     // /** ECIES (does not always match the Point.fromAffine version above) */
@@ -130,8 +130,8 @@ class PrivateKey {
     /** @throws {Error} - overflow of the key could not be derived */
     child( offset ) {
         offset = Buffer.concat([ this.toPublicKey().toBuffer(), offset ])
-        offset = hash.sha256( offset )
-        let c = BigInteger.fromBuffer(offset)
+        offset = sha256( offset )
+        let c = bigi.fromBuffer(offset)
 
         if (c.compareTo(n) >= 0)
             throw new Error("Child offset went out of bounds, try again")
@@ -165,7 +165,7 @@ class PrivateKey {
     /* </helper_functions> */
 }
 
-module.exports = PrivateKey;
+export default PrivateKey;
 
 const toPublic = data => data == null ? data :
     data.Q ? data : PublicKey.fromStringOrThrow(data)

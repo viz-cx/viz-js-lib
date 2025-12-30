@@ -1,4 +1,4 @@
-module.exports = [
+export default [
   {
     "api": "witness_api",
     "method": "get_miner_queue"

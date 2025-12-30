@@ -1,13 +1,12 @@
 import EventEmitter from 'events';
 import Promise from 'bluebird';
-import cloneDeep from 'lodash/cloneDeep';
-import defaults from 'lodash/defaults';
-import isNode from 'detect-node';
+import cloneDeep from 'lodash/cloneDeep.js';
+import defaults from 'lodash/defaults.js';
 import newDebug from 'debug';
-import config from '../config';
-import methods from './methods';
-import { camelCase } from '../utils';
-import transports from './transports';
+import config from '../config.js';
+import methods from './methods.js';
+import { camelCase } from '../utils.js';
+import transports from './transports/index.js';
 
 const debugEmitters = newDebug('viz:emitters');
 const debugProtocol = newDebug('viz:protocol');
@@ -80,7 +79,7 @@ class VIZ extends EventEmitter {
     const errorCause = message.error;
     if (errorCause) {
       const err = new Error(
-        // eslint-disable-next-line prefer-template
+
         (errorCause.message || 'Failed to complete operation') +
         ' (see err.payload for the full error payload)'
       );
@@ -252,7 +251,7 @@ methods.forEach((method) => {
   VIZ.prototype[methodName] =
     function VIZ$specializedSend(...args) {
       const options = methodParams.reduce((memo, param, i) => {
-        memo[param] = args[i]; // eslint-disable-line no-param-reassign
+        memo[param] = args[i];
         return memo;
       }, {});
       const callback = args[methodParams.length];
@@ -264,7 +263,6 @@ methods.forEach((method) => {
 Promise.promisifyAll(VIZ.prototype);
 
 // Export singleton instance
+export { VIZ, DEFAULTS };
 const viz = new VIZ();
-exports = module.exports = viz;
-exports.VIZ = VIZ;
-exports.VIZ.DEFAULTS = DEFAULTS;
+export default viz;

@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
-import should from 'should';
-import viz from '../src';
-import pkg from '../package.json';
+import viz from '../src/api/index.js';
+import pkg from '../package.json' with { type: 'json' };
+import process from 'process';
 
 const username = process.env.VIZ_USERNAME || 'guest123';
 const password = process.env.VIZ_PASSWORD;

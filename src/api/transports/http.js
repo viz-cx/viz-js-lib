@@ -1,7 +1,7 @@
 import fetch from 'cross-fetch';
 import newDebug from 'debug';
-import Transport from './base';
-import config from '../../config';
+import Transport from './base.js';
+import config from '../../config.js';
 
 const debug = newDebug('steem:http');
 

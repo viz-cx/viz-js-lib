@@ -1,6 +1,6 @@
 import assert from 'assert'
-import {encode, decode} from '../src/auth/memo';
-import {PrivateKey} from '../src/auth/ecc';
+import {encode, decode} from '../src/auth/memo.js';
+import {PrivateKey} from '../src/auth/ecc/index.js';
 
 
 const private_key = PrivateKey.fromSeed("")

@@ -1,5 +1,5 @@
 import assert from "assert"
-import { toImpliedDecimal, fromImpliedDecimal } from "../src/auth/serializer/src/number_utils"
+import { toImpliedDecimal, fromImpliedDecimal } from "../src/auth/serializer/src/number_utils.js"
 
 describe("viz.auth: Number utils", () => {
 

@@ -23,5 +23,7 @@
     "no-shadow": ["warn"],
     "no-constant-condition": ["warn"],
     "no-shadow-restricted-names": ["off"], # warn misfired on 'import' statements
-  },
+    "quotes": ["error", "single"],
+    "no-irregular-whitespace": "error"
+  }
 }

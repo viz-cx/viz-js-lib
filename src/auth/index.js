@@ -1,18 +1,19 @@
-var bigi = require('bigi'),
-	bs58 = require('bs58'),
-	ecurve = require('ecurve'),
-	Point = ecurve.Point,
-	secp256k1 = ecurve.getCurveByName('secp256k1'),
-	config = require('../config'),
-	operations = require('./serializer/src/operations'),
-	Signature = require('./ecc/src/signature'),
-	KeyPrivate = require('./ecc/src/key_private'),
-	PublicKey = require('./ecc/src/key_public'),
-  hash = require('./ecc/src/hash');
+import bigi from 'bigi';
+import bs58 from 'bs58';
+import ecurve from 'ecurve';
+import config from '../config.js';
+import operation  from './serializer/src/operations.js';
+import Signature from './ecc/src/signature.js';
+import KeyPrivate from './ecc/src/key_private.js';
+import PublicKey from './ecc/src/key_public.js';
+import * as hash from './ecc/src/hash.js';
+
+const Point = ecurve.Point;
+const secp256k1 = ecurve.getCurveByName('secp256k1');
 
 var Auth = {};
-var transaction = operations.transaction;
-var signed_transaction = operations.signed_transaction;
+var transaction = operation.transaction;
+var signed_transaction = operation.signed_transaction;
 
 Auth.signature=Signature;
 
@@ -129,4 +130,4 @@ Auth.signTransaction = function (trx, keys, debug = false) {
 	return signed_transaction.toObject(Object.assign(trx, { signatures: signatures }))
 };
 
-module.exports = Auth;
+export default Auth;

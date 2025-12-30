@@ -1,4 +1,4 @@
-import { PrivateKey, PublicKey, Address } from "../src/auth/ecc";
+import { PrivateKey, PublicKey, Address } from "../src/auth/ecc/index.js";
 import assert from "assert"
 
 var test = function(key) {
@@ -89,4 +89,3 @@ test({
     Uncompressed_PTS:	"VIZEgj7RM6FBwSoccGaESJLC3Mi18785bM3T",
     Compressed_PTS:	"VIZD5rYtofD6D4UHJH6mo953P5wpBfMhdMEi"
 });
-

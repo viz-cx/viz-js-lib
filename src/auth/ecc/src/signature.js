@@ -1,10 +1,11 @@
-var ecdsa = require('./ecdsa');
-var hash = require('./hash');
-var curve = require('ecurve').getCurveByName('secp256k1');
-var assert = require('assert');
-var BigInteger = require('bigi');
-var PublicKey = require('./key_public');
-var PrivateKey = require('./key_private');
+import { recoverPubKey, sign as _sign, calcPubKeyRecoveryParam, verify } from './ecdsa.js';
+import { sha256 } from './hash.js';
+import ecurve from 'ecurve';
+const curve = ecurve.getCurveByName('secp256k1');
+import assert, { equal } from 'assert';
+import bigi from 'bigi';
+import PublicKey from './key_public.js';
+import PrivateKey from './key_private.js';
 
 class Signature {
 
@@ -12,24 +13,24 @@ class Signature {
         this.r = r1;
         this.s = s1;
         this.i = i1;
-        assert.equal(this.r != null, true, 'Missing parameter');
-        assert.equal(this.s != null, true, 'Missing parameter');
-        assert.equal(this.i != null, true, 'Missing parameter');
+        equal(this.r != null, true, 'Missing parameter');
+        equal(this.s != null, true, 'Missing parameter');
+        equal(this.i != null, true, 'Missing parameter');
     }
 
     static fromBuffer(buf) {
         var i, r, s;
-        assert.equal(buf.length, 65, 'Invalid signature length');
+        equal(buf.length, 65, 'Invalid signature length');
         i = buf.readUInt8(0);
-        assert.equal(i - 27, i - 27 & 7, 'Invalid signature parameter');
-        r = BigInteger.fromBuffer(buf.slice(1, 33));
-        s = BigInteger.fromBuffer(buf.slice(33));
+        equal(i - 27, i - 27 & 7, 'Invalid signature parameter');
+        r = bigi.fromBuffer(buf.slice(1, 33));
+        s = bigi.fromBuffer(buf.slice(33));
         return new Signature(r, s, i);
     };
 
     toBuffer() {
         var buf;
-        buf = new Buffer(65);
+        buf = Buffer.alloc(65);
         buf.writeUInt8(this.i, 0);
         this.r.toBuffer(32).copy(buf, 1);
         this.s.toBuffer(32).copy(buf, 33);
@@ -37,7 +38,7 @@ class Signature {
     };
 
     recoverPublicKeyFromBuffer(buffer) {
-        return this.recoverPublicKey(hash.sha256(buffer));
+        return this.recoverPublicKey(sha256(buffer));
     };
 
     /**
@@ -45,11 +46,11 @@ class Signature {
     */
     recoverPublicKey(sha256_buffer) {
         let Q, e, i;
-        e = BigInteger.fromBuffer(sha256_buffer);
+        e = bigi.fromBuffer(sha256_buffer);
         i = this.i;
         i -= 27;
         i = i & 3;
-        Q = ecdsa.recoverPubKey(curve, e, this, i);
+        Q = recoverPubKey(curve, e, this, i);
         return PublicKey.fromPoint(Q);
     };
 
@@ -60,7 +61,7 @@ class Signature {
         @return {Signature}
     */
     static signBuffer(buf, private_key) {
-        var _hash = hash.sha256(buf);
+        var _hash = sha256(buf);
         return Signature.signBufferSha256(_hash, private_key)
     }
 
@@ -78,14 +79,14 @@ class Signature {
         var der, e, ecsignature, i, lenR, lenS, nonce;
         i = null;
         nonce = 0;
-        e = BigInteger.fromBuffer(buf_sha256);
+        e = bigi.fromBuffer(buf_sha256);
         while (true) {
-          ecsignature = ecdsa.sign(curve, buf_sha256, private_key.d, nonce++);
+          ecsignature = _sign(curve, buf_sha256, private_key.d, nonce++);
           der = ecsignature.toDER();
           lenR = der[3];
           lenS = der[5 + lenR];
           if (lenR === 32 && lenS === 32) {
-            i = ecdsa.calcPubKeyRecoveryParam(curve, e, ecsignature, private_key.toPublicKey().Q);
+            i = calcPubKeyRecoveryParam(curve, e, ecsignature, private_key.toPublicKey().Q);
             i += 4;  // compressed
             i += 27; // compact  //  24 or 27 :( forcing odd-y 2nd key candidate)
             break;
@@ -98,7 +99,7 @@ class Signature {
     };
 
     static sign(string, private_key) {
-        return Signature.signBuffer(new Buffer(string), private_key);
+        return Signature.signBuffer(Buffer.from(string), private_key);
     };
 
 
@@ -108,13 +109,13 @@ class Signature {
         @return {boolean}
     */
     verifyBuffer(buf, public_key) {
-        var _hash = hash.sha256(buf);
+        var _hash = sha256(buf);
         return this.verifyHash(_hash, public_key);
     };
 
     verifyHash(hash, public_key) {
-        assert.equal(hash.length, 32, "A SHA 256 should be 32 bytes long, instead got " + hash.length);
-        return ecdsa.verify(curve, hash, {
+        equal(hash.length, 32, "A SHA 256 should be 32 bytes long, instead got " + hash.length);
+        return verify(curve, hash, {
           r: this.r,
           s: this.s
         }, public_key.Q);
@@ -129,7 +130,7 @@ class Signature {
     // };
 
     static fromHex(hex) {
-        return Signature.fromBuffer(new Buffer(hex, "hex"));
+        return Signature.fromBuffer(Buffer.from(hex, "hex"));
     };
 
     toHex() {
@@ -138,25 +139,25 @@ class Signature {
 
     static signHex(hex, private_key) {
         var buf;
-        buf = new Buffer(hex, 'hex');
+        buf = Buffer.from(hex, 'hex');
         return Signature.signBuffer(buf, private_key);
     };
 
     verifyHex(hex, public_key) {
         var buf;
-        buf = new Buffer(hex, 'hex');
+        buf = Buffer.from(hex, 'hex');
         return this.verifyBuffer(buf, public_key);
     };
 
     static verifyData(data, signature, public_key_str) {
-    	var data_buf = new Buffer(data);
-        var data_buf_hex = new Buffer(data_buf, 'hex');
-        var data_buf_hash = hash.sha256(data_buf_hex);
-        assert.equal(data_buf_hash.length, 32, "A SHA 256 should be 32 bytes long, instead got " + data_buf_hash.length);
+    	var data_buf = Buffer.from(data);
+        var data_buf_hex = Buffer.from(data_buf, 'hex');
+        var data_buf_hash = sha256(data_buf_hex);
+        equal(data_buf_hash.length, 32, "A SHA 256 should be 32 bytes long, instead got " + data_buf_hash.length);
         var public_key=PublicKey.fromString(public_key_str);
-        return ecdsa.verify(curve, data_buf_hash, signature, public_key.Q);
+        return verify(curve, data_buf_hash, signature, public_key.Q);
     };
 
 }
 const toPrivateObj = o => (o ? o.d ? o : PrivateKey.fromWif(o) : o/*null or undefined*/)
-module.exports = Signature;
+export default Signature;

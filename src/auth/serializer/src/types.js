@@ -2,16 +2,15 @@
 
 // Low-level types that make up operations
 
-const v = require('./validation');
-const ObjectId = require('./object_id')
-const fp = require('./fast_parser');
-const chain_types = require('./ChainTypes')
+import v from './validation.js';
+import ObjectId from './object_id.js';
+import fp from './fast_parser.js';
+import {ChainTypes} from './ChainTypes.js';
+import process from "process";
+import { PublicKey, Address, ecc_config } from "../../ecc/index.js";
+import { fromImpliedDecimal } from "./number_utils.js";
 
-import { PublicKey, Address, ecc_config } from "../../ecc"
-import { fromImpliedDecimal } from "./number_utils"
-
-const Types = {}
-module.exports = Types
+const types = {};
 
 const HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump
 const TEST = process.env.NODE_ENV === "test"
@@ -27,7 +26,7 @@ const TEST = process.env.NODE_ENV === "test"
 *  It is treated as a uint64_t for all internal operations, but
 *  is easily converted to something that can be displayed.
 */
-Types.asset = {
+types.asset = {
     fromByteBuffer(b){
         let amount = b.readInt64()
         let precision = b.readUint8()
@@ -68,7 +67,7 @@ Types.asset = {
     }
 }
 
-Types.uint8 = {
+types.uint8 = {
 
     fromByteBuffer(b){
         return b.readUint8();
@@ -89,7 +88,7 @@ Types.uint8 = {
     }
     };
 
-Types.uint16 =
+types.uint16 =
     {fromByteBuffer(b){
         return b.readUint16();
     },
@@ -109,7 +108,7 @@ Types.uint16 =
     }
     };
 
-Types.uint32 =
+types.uint32 =
     {fromByteBuffer(b){
         return b.readUint32();
     },
@@ -132,7 +131,7 @@ Types.uint32 =
 var MIN_SIGNED_32 = -1 * Math.pow(2,31);
 var MAX_SIGNED_32 = Math.pow(2,31) - 1;
 
-Types.varint32 =
+types.varint32 =
     {fromByteBuffer(b){
         return b.readVarint32();
     },
@@ -167,7 +166,7 @@ Types.varint32 =
     }
     };
 
-Types.int16 =
+types.int16 =
     {fromByteBuffer(b){
         return b.readInt16();
     },
@@ -184,7 +183,7 @@ Types.int16 =
     }
     };
 
-Types.int64 =
+types.int64 =
     {fromByteBuffer(b){
         return b.readInt64();
     },
@@ -204,7 +203,7 @@ Types.int64 =
     }
     };
 
-Types.uint64 =
+types.uint64 =
     {fromByteBuffer(b){
         return b.readUint64();
     },
@@ -221,7 +220,7 @@ Types.uint64 =
     }
     };
 
-Types.string =
+types.string =
     {fromByteBuffer(b){
         return new Buffer(b.readVString(), 'utf8');
     },
@@ -240,7 +239,7 @@ Types.string =
     }
     };
 
-Types.string_binary =
+types.string_binary =
     {fromByteBuffer(b){
         var b_copy;
         var len = b.readVarint32();
@@ -263,7 +262,7 @@ Types.string_binary =
     }
     };
 
-Types.bytes = function(size){
+types.bytes = function(size){
     return {fromByteBuffer(b){
         if (size === undefined) {
             var b_copy;
@@ -304,7 +303,7 @@ Types.bytes = function(size){
     };
 };
 
-Types.bool =
+types.bool =
     {fromByteBuffer(b){
         return b.readUint8() === 1
     },
@@ -322,7 +321,7 @@ Types.bool =
     }
 };
 
-Types.void =
+types.void =
     {fromByteBuffer(b){
         throw new Error("(void) undefined type");
     },
@@ -340,7 +339,7 @@ Types.void =
     }
     };
 
-Types.array = function(st_operation){
+types.array = function(st_operation){
     return {fromByteBuffer(b){
         var size = b.readVarint32();
         if (HEX_DUMP) {
@@ -388,11 +387,11 @@ Types.array = function(st_operation){
     };
 };
 
-Types.time_point_sec = {
+types.time_point_sec = {
     fromByteBuffer(b){ return b.readUint32(); },
     appendByteBuffer(b, object){
         if(typeof object !== "number")
-            object = Types.time_point_sec.fromObject(object)
+            object = types.time_point_sec.fromObject(object)
 
         b.writeUint32(object);
         return;
@@ -432,7 +431,7 @@ Types.time_point_sec = {
     }
 }
 
-Types.set = function(st_operation){
+types.set = function(st_operation){
     return {validate(array){
         var dup_map = {};
         for (var i = 0, o; i < array.length; i++) {
@@ -499,7 +498,7 @@ Types.set = function(st_operation){
 };
 
 // global_parameters_update_operation current_fees
-Types.fixed_array = function(count, st_operation) {
+types.fixed_array = function(count, st_operation) {
   return {
     fromByteBuffer: function(b) {
       var i, j, ref, results;
@@ -581,7 +580,7 @@ var id_type = function(reserved_spaces, object_type){
         return v.get_instance(reserved_spaces, object_type, object);
     },
     toObject(object, debug = {}){
-        var object_type_id = chain_types.object_type[object_type];
+        var object_type_id = ChainTypes.object_type[object_type];
         if (debug.use_default && object === undefined) {
             return `${reserved_spaces}.${object_type_id}.0`;
         }
@@ -596,12 +595,12 @@ var id_type = function(reserved_spaces, object_type){
     };
 };
 
-Types.protocol_id_type = function(name){
+types.protocol_id_type = function(name){
     v.required(name, "name")
-    return id_type(chain_types.reserved_spaces.protocol_ids, name);
+    return id_type(ChainTypes.reserved_spaces.protocol_ids, name);
 };
 
-Types.object_id_type =
+types.object_id_type =
     {fromByteBuffer(b){
         return ObjectId.fromByteBuffer(b);
     },
@@ -630,7 +629,7 @@ Types.object_id_type =
     }
     };
 
-Types.vote_id =
+types.vote_id =
     {TYPE: 0x000000FF,
     ID:   0xFFFFFF00,
     fromByteBuffer(b){
@@ -643,7 +642,7 @@ Types.vote_id =
     appendByteBuffer(b, object){
         v.required(object);
         if(object === "string")
-            object = Types.vote_id.fromObject(object)
+            object = types.vote_id.fromObject(object)
 
         var value = object.id << 8 | object.type
         b.writeUint32(value);
@@ -668,18 +667,18 @@ Types.vote_id =
         }
         v.required(object);
         if(typeof object === "string")
-            object = Types.vote_id.fromObject(object)
+            object = types.vote_id.fromObject(object)
 
         return object.type + ":" + object.id;
     },
     compare(a, b) {
-        if(typeof a !== "object") a = Types.vote_id.fromObject(a)
-        if(typeof b !== "object") b = Types.vote_id.fromObject(b)
+        if(typeof a !== "object") a = types.vote_id.fromObject(a)
+        if(typeof b !== "object") b = types.vote_id.fromObject(b)
         return parseInt(a.id) - parseInt(b.id);
     }
 };
 
-Types.optional = function(st_operation){
+types.optional = function(st_operation){
     v.required(st_operation, "st_operation");
     return {fromByteBuffer(b){
         if (!(b.readUint8() === 1)) {
@@ -722,7 +721,7 @@ Types.optional = function(st_operation){
     };
 };
 
-Types.static_variant = function(_st_operations){
+types.static_variant = function(_st_operations){
     return {
         nosort: true,
         st_operations: _st_operations,
@@ -796,7 +795,7 @@ Types.static_variant = function(_st_operations){
     };
 };
 
-Types.map = function(key_st_operation, value_st_operation){
+types.map = function(key_st_operation, value_st_operation){
     return {validate(array){
         if (!Array.isArray(array)) {
             throw new Error("expecting array");
@@ -876,7 +875,7 @@ Types.map = function(key_st_operation, value_st_operation){
     };
 };
 
-Types.public_key = {
+types.public_key = {
     toPublic(object){
         if (object.resolve !== undefined) { object = object.resolve; }
         return object == null ? object :
@@ -887,13 +886,13 @@ Types.public_key = {
     },
     appendByteBuffer(b, object){
         v.required(object);
-        fp.public_key(b, Types.public_key.toPublic(object));
+        fp.public_key(b, types.public_key.toPublic(object));
         return;
     },
     fromObject(object){
         v.required(object);
         if (object.Q) { return object; }
-        return Types.public_key.toPublic(object);
+        return types.public_key.toPublic(object);
     },
     toObject(object, debug = {}){
         if (debug.use_default && object === undefined) {
@@ -908,7 +907,7 @@ Types.public_key = {
     }
 };
 
-Types.address =
+types.address =
     {_to_address(object){
         v.required(object);
         if (object.addy) { return object; }
@@ -918,17 +917,17 @@ Types.address =
         return new Address(fp.ripemd160(b));
     },
     appendByteBuffer(b, object){
-        fp.ripemd160(b, Types.address._to_address(object).toBuffer());
+        fp.ripemd160(b, types.address._to_address(object).toBuffer());
         return;
     },
     fromObject(object){
-        return Types.address._to_address(object);
+        return types.address._to_address(object);
     },
     toObject(object, debug = {}){
         if (debug.use_default && object === undefined) {
             return ecc_config.get('address_prefix') + "664KmHxSuQyDsfwo4WEJvWpzg1QKdg67S";
         }
-        return Types.address._to_address(object).toString();
+        return types.address._to_address(object).toString();
     },
     compare(a, b) {
         // sort decending
@@ -950,3 +949,33 @@ let sortOperation = (array, st_operation) => {
         strCmp(firstEl(a).toString(), firstEl(b).toString())
     )
 }
+
+export const {
+    asset,
+    uint8,
+    uint16,
+    uint32,
+    varint32,
+    int16,
+    int64,
+    uint64,
+    string,
+    string_binary,
+    bytes,
+    bool,
+    void: void_type,
+    array,
+    time_point_sec,
+    set,
+    fixed_array,
+    protocol_id_type,
+    object_id_type,
+    vote_id,
+    optional,
+    static_variant,
+    map,
+    public_key,
+    address
+} = types;
+
+export default types;

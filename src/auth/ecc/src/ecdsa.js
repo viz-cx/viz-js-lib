@@ -1,22 +1,22 @@
-var assert = require('assert') // from github.com/bitcoinjs/bitcoinjs-lib from github.com/cryptocoinjs/ecdsa
-var crypto = require('./hash')
-var enforceType = require('./enforce_types')
-
-var BigInteger = require('bigi')
-var ECSignature = require('./ecsignature')
+import assert, { equal, strictEqual } from 'assert' // from github.com/bitcoinjs/bitcoinjs-lib from github.com/cryptocoinjs/ecdsa
+import { sha256, HmacSHA256 } from './hash.js'
+import enforceType from './enforce_types.js'
+import BigInteger from 'bigi'
+import bigi from 'bigi'
+import ECSignature from './ecsignature.js'
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
 function deterministicGenerateK(curve, hash, d, checkSig, nonce) {
-  
+
   enforceType('Buffer', hash)
   enforceType(BigInteger, d)
-  
+
   if (nonce) {
-    hash = crypto.sha256(Buffer.concat([hash, new Buffer(nonce)]))
+    hash = sha256(Buffer.concat([hash, new Buffer(nonce)]))
   }
 
   // sanity check
-  assert.equal(hash.length, 32, 'Hash must be 256 bit')
+  equal(hash.length, 32, 'Hash must be 256 bit')
 
   var x = d.toBuffer(32)
   var k = new Buffer(32)
@@ -29,33 +29,33 @@ function deterministicGenerateK(curve, hash, d, checkSig, nonce) {
   k.fill(0)
 
   // Step D
-  k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
+  k = HmacSHA256(Buffer.concat([v, new Buffer([0]), x, hash]), k)
 
   // Step E
-  v = crypto.HmacSHA256(v, k)
+  v = HmacSHA256(v, k)
 
   // Step F
-  k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
+  k = HmacSHA256(Buffer.concat([v, new Buffer([1]), x, hash]), k)
 
   // Step G
-  v = crypto.HmacSHA256(v, k)
+  v = HmacSHA256(v, k)
 
   // Step H1/H2a, ignored as tlen === qlen (256 bit)
   // Step H2b
-  v = crypto.HmacSHA256(v, k)
+  v = HmacSHA256(v, k)
 
-  var T = BigInteger.fromBuffer(v)
+  var T = fromBuffer(v)
 
   // Step H3, repeat until T is within the interval [1, n - 1]
   while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0) || !checkSig(T)) {
-    k = crypto.HmacSHA256(Buffer.concat([v, new Buffer([0])]), k)
-    v = crypto.HmacSHA256(v, k)
+    k = HmacSHA256(Buffer.concat([v, new Buffer([0])]), k)
+    v = HmacSHA256(v, k)
 
     // Step H1/H2a, again, ignored as tlen === qlen (256 bit)
     // Step H2b again
-    v = crypto.HmacSHA256(v, k)
-    
-    T = BigInteger.fromBuffer(v)
+    v = HmacSHA256(v, k)
+
+    T = fromBuffer(v)
   }
 
   return T
@@ -63,24 +63,24 @@ function deterministicGenerateK(curve, hash, d, checkSig, nonce) {
 }
 
 function sign(curve, hash, d, nonce) {
-  
-  var e = BigInteger.fromBuffer(hash)
+
+  var e = bigi.fromBuffer(hash)
   var n = curve.n
   var G = curve.G
-  
+
   var r, s
   var k = deterministicGenerateK(curve, hash, d, function (k) {
     // find canonically valid signature
     var Q = G.multiply(k)
-    
+
     if (curve.isInfinity(Q)) return false
-    
+
     r = Q.affineX.mod(n)
     if (r.signum() === 0) return false
-    
+
     s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n)
     if (s.signum() === 0) return false
-    
+
     return true
   }, nonce)
 
@@ -124,7 +124,7 @@ function verifyRaw(curve, e, signature, Q) {
 
   // 1.4.7 Set v = xR mod n
   var v = xR.mod(n)
-  
+
   // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
   return v.equals(r)
 }
@@ -132,7 +132,7 @@ function verifyRaw(curve, e, signature, Q) {
 function verify(curve, hash, signature, Q) {
   // 1.4.2 H = Hash(M), already done by the user
   // 1.4.3 e = H
-  var e = BigInteger.fromBuffer(hash)
+  var e = bigi.fromBuffer(hash)
   return verifyRaw(curve, e, signature, Q)
 }
 
@@ -145,7 +145,7 @@ function verify(curve, hash, signature, Q) {
   * http://www.secg.org/download/aid-780/sec1-v2.pdf
   */
 function recoverPubKey(curve, e, signature, i) {
-  assert.strictEqual(i & 3, i, 'Recovery param is more than two bits')
+  strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
   var n = curve.n
   var G = curve.G
@@ -208,11 +208,11 @@ function calcPubKeyRecoveryParam(curve, e, signature, Q) {
   throw new Error('Unable to find valid recovery factor')
 }
 
-module.exports = {
-  calcPubKeyRecoveryParam: calcPubKeyRecoveryParam,
-  deterministicGenerateK: deterministicGenerateK,
-  recoverPubKey: recoverPubKey,
-  sign: sign,
-  verify: verify,
-  verifyRaw: verifyRaw
+export {
+  calcPubKeyRecoveryParam,
+  deterministicGenerateK,
+  recoverPubKey,
+  sign,
+  verify,
+  verifyRaw,
 }

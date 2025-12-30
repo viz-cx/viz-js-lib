@@ -1,6 +1,7 @@
 import Promise from 'bluebird';
 import should from 'should';
-import viz from '../src';
+import viz from '../src/index.js';
+import process from 'process';
 
 const username = process.env.VIZ_USERNAME || 'guest123';
 const password = process.env.VIZ_PASSWORD;

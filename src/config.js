@@ -1,7 +1,6 @@
-const defaultConfig = require('../config.json');
+import config from '../config.json' with { type: 'json' };
 
-module.exports = (function () {
-  const config = defaultConfig;
+export default (function () {
   const get = (key) => config[key];
   const set = (key, value) => {
     config[key] = value;

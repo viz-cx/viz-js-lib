@@ -1,7 +1,7 @@
-var assert = require('assert') // from https://github.com/bitcoinjs/bitcoinjs-lib
-var enforceType = require('./enforce_types')
-
-var BigInteger = require('bigi')
+import assert, { equal } from 'assert' // from https://github.com/bitcoinjs/bitcoinjs-lib
+import enforceType from './enforce_types.js'
+import BigInteger from 'bigi'
+import bigi from 'bigi'
 
 function ECSignature(r, s) {
   enforceType(BigInteger, r)
@@ -13,18 +13,18 @@ function ECSignature(r, s) {
 
 // Import operations
 ECSignature.parseCompact = function(buffer) {
-  assert.equal(buffer.length, 65, 'Invalid signature length')
+  equal(buffer.length, 65, 'Invalid signature length')
   var i = buffer.readUInt8(0) - 27
 
   // At most 3 bits
-  assert.equal(i, i & 7, 'Invalid signature parameter')
+  equal(i, i & 7, 'Invalid signature parameter')
   var compressed = !!(i & 4)
 
   // Recovery param only
   i = i & 3
 
-  var r = BigInteger.fromBuffer(buffer.slice(1, 33))
-  var s = BigInteger.fromBuffer(buffer.slice(33))
+  var r = bigi.fromBuffer(buffer.slice(1, 33))
+  var s = bigi.fromBuffer(buffer.slice(33))
 
   return {
     compressed: compressed,
@@ -34,15 +34,15 @@ ECSignature.parseCompact = function(buffer) {
 }
 
 ECSignature.fromDER = function(buffer) {
-  assert.equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
-  assert.equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
-  assert.equal(buffer.readUInt8(2), 0x02, 'Expected a DER integer')
+  equal(buffer.readUInt8(0), 0x30, 'Not a DER sequence')
+  equal(buffer.readUInt8(1), buffer.length - 2, 'Invalid sequence length')
+  equal(buffer.readUInt8(2), 0x02, 'Expected a DER integer')
 
   var rLen = buffer.readUInt8(3)
   assert(rLen > 0, 'R length is zero')
 
   var offset = 4 + rLen
-  assert.equal(buffer.readUInt8(offset), 0x02, 'Expected a DER integer (2)')
+  equal(buffer.readUInt8(offset), 0x02, 'Expected a DER integer (2)')
 
   var sLen = buffer.readUInt8(offset + 1)
   assert(sLen > 0, 'S length is zero')
@@ -59,9 +59,9 @@ ECSignature.fromDER = function(buffer) {
     assert(sB.readUInt8(1) & 0x80, 'S value excessively padded')
   }
 
-  assert.equal(offset, buffer.length, 'Invalid DER encoding')
-  var r = BigInteger.fromDERInteger(rB)
-  var s = BigInteger.fromDERInteger(sB)
+  equal(offset, buffer.length, 'Invalid DER encoding')
+  var r = bigi.fromDERInteger(rB)
+  var s = bigi.fromDERInteger(sB)
 
   assert(r.signum() >= 0, 'R value is negative')
   assert(s.signum() >= 0, 'S value is negative')
@@ -123,4 +123,4 @@ ECSignature.prototype.toScriptSignature = function(hashType) {
   return Buffer.concat([this.toDER(), hashTypeBuffer])
 }
 
-module.exports = ECSignature
+export default ECSignature

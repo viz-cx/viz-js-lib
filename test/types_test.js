@@ -1,20 +1,21 @@
-var Convert = require('../src/auth/serializer/src/convert');
-var Long = require('bytebuffer').Long;
-
-var assert = require('assert');
-var type = require('../src/auth/serializer/src/types');
-var p = require('../src/auth/serializer/src/precision');
-var th = require('./test_helper');
+import Convert from '../src/auth/serializer/src/convert.js';
+import ByteBuffer from 'bytebuffer';
+import assert from 'assert';
+const { equal, deepEqual } = assert;
+import Types from '../src/auth/serializer/src/types.js';
+const { vote_id, set: _set, bool, string, map: _map, public_key, uint16, protocol_id_type } = Types;
+import precision from '../src/auth/serializer/src/precision.js';
+const { _internal, to_bigint64, to_string64 } = precision;
+import { error } from './test_helper.js';
 
 describe("viz.auth: types", function() {
-
     it("vote_id",function() {
         var toHex=function(id){
-            var vote = type.vote_id.fromObject(id);
-            return Convert(type.vote_id).toHex(vote);
+            var vote = vote_id.fromObject(id);
+            return Convert(vote_id).toHex(vote);
         };
-        assert.equal("ff000000", toHex("255:0"));
-        assert.equal("00ffffff", toHex("0:"+0xffffff));
+        equal("ff000000", toHex("255:0"));
+        equal("00ffffff", toHex("0:"+0xffffff));
         var out_of_range=function(id){
             try {
                 toHex(id);
@@ -25,39 +26,37 @@ describe("viz.auth: types", function() {
         };
         out_of_range("0:"+(0xffffff+1));
         out_of_range("256:0");
-
     });
 
     it("set sort", function() {
-        var bool_set = type.set(type.bool);
+        var bool_set = _set(bool);
         // Note, 1,0 sorts to 0,1
-        assert.equal("020001", Convert(bool_set).toHex([1,0]));
-        th.error("duplicate (set)", function() { return Convert(bool_set).toHex([1,1]); });
-
+        equal("020001", Convert(bool_set).toHex([1,0]));
+        error("duplicate (set)", function() { return Convert(bool_set).toHex([1,1]); });
     });
 
     it("string sort", function() {
-        var setType = type.set(type.string);
+        var setType = _set(string);
         var set = setType.fromObject(["a","z","m"])
         var setObj = setType.toObject(set)
-        assert.deepEqual(["a","m","z"], setObj, "not sorted")
+        deepEqual(["a","m","z"], setObj, "not sorted")
     });
 
     it("map sort", function() {
-        var bool_map = type.map(type.bool, type.bool);
+        var bool_map = _map(bool, bool);
         // 1,1 0,0   sorts to   0,0  1,1
-        assert.equal("0200000101", Convert(bool_map).toHex([[1,1],[0,0]]));
-        th.error("duplicate (map)", function() { return Convert(bool_map).toHex([[1,1],[1,1]]); });
+        equal("0200000101", Convert(bool_map).toHex([[1,1],[0,0]]));
+        error("duplicate (map)", function() { return Convert(bool_map).toHex([[1,1],[1,1]]); });
     })
 
     it("public_key sort", function() {
-        let mapType = type.map(type.public_key, type.uint16)
+        let mapType = _map(public_key, uint16)
         let map = mapType.fromObject([//not sorted
             ["VIZ56ankGHKf6qUsQe7vPsXTSEqST6Dt1ff73aV3YQbedzRua8NLQ",0],
             ["VIZ8me6d9PqzTgcoHxx6b4rnvWVTqz11kafidRAZwfacJkcJtfd75",0],
         ])
         let mapObject = mapType.toObject(map)
-        assert.deepEqual(mapObject, [ // sorted (uppercase comes first)
+        deepEqual(mapObject, [ // sorted (uppercase comes first)
             ["VIZ8me6d9PqzTgcoHxx6b4rnvWVTqz11kafidRAZwfacJkcJtfd75",0],
             ["VIZ56ankGHKf6qUsQe7vPsXTSEqST6Dt1ff73aV3YQbedzRua8NLQ",0],
         ])
@@ -65,22 +64,21 @@ describe("viz.auth: types", function() {
 
     it("type_id sort", function() {
         // map (protocol_id_type "account"), (uint16)
-        let t = type.map(type.protocol_id_type("account"), type.uint16);
-        assert.deepEqual( t.fromObject([[1,1],[0,0]]), [[0,0],[1,1]], 'did not sort' )
-        assert.deepEqual( t.fromObject([[0,0],[1,1]]), [[0,0],[1,1]], 'did not sort' )
+        let t = _map(protocol_id_type("account"), uint16);
+        deepEqual( t.fromObject([[1,1],[0,0]]), [[0,0],[1,1]], 'did not sort' )
+        deepEqual( t.fromObject([[0,0],[1,1]]), [[0,0],[1,1]], 'did not sort' )
     });
 
     it("precision number strings", function() {
         var check=function(input_string, precision, output_string){
-            return assert.equal(
+            return equal(
                 output_string,
-                p._internal.decimal_precision_string(
+                _internal.decimal_precision_string(
                     input_string,
                     precision
                 )
             );
         };
-
         check(
             "12345678901234567890123456789012345678901234567890.12345",5,
             "1234567890123456789012345678901234567890123456789012345"
@@ -93,48 +91,40 @@ describe("viz.auth: types", function() {
         check("-",    0,      "0");
         check("1",    0,      "1");
         check("11",   0,      "11");
-
         overflow(function(){ return check(".1", 0, ""); });
         overflow(function(){ return check("-.1", 0, ""); });
         overflow(function(){ return check("0.1", 0, ""); });
         overflow(function(){ return check("1.1", 0, ""); });
         overflow(function(){ return check("1.11", 1, ""); });
-
         check("",     1,      "00");
         check("1",    1,      "10");
         check("1.1",  1,      "11");
         check("-1",   1,      "-10");
         check("-1.1", 1,      "-11");
-
     });
 
     it("precision number long", function() {
         var _precision;
-        assert.equal(
-            Long.MAX_VALUE.toString(),
-            p.to_bigint64(
-                Long.MAX_VALUE.toString(), _precision = 0
+        equal(
+            ByteBuffer.Long.MAX_VALUE.toString(),
+            to_bigint64(
+                ByteBuffer.Long.MAX_VALUE.toString(), _precision = 0
             ).toString(),
             "to_bigint64 MAX_VALUE mismatch"
         );
-
         // Long.MAX_VALUE.toString() == 9223372036854775807
         // Long.MAX_VALUE.toString() +1 9223372036854775808
-        overflow(function(){ return p.to_bigint64(
+        overflow(function(){ return to_bigint64(
             '9223372036854775808', _precision = 0
         );
         });
-
-        assert.equal("0", p.to_string64(Long.ZERO, 0));
-        assert.equal("00", p.to_string64(Long.ZERO, 1));
-
-        overflow(function(){ return p.to_bigint64(
+        equal("0", to_string64(ByteBuffer.Long.ZERO, 0));
+        equal("00", to_string64(ByteBuffer.Long.ZERO, 1));
+        overflow(function(){ return to_bigint64(
             '92233720368547758075', _precision = 1
         );
         });
-
     });
-
 });
 
-var overflow = function(f){ return th.error("overflow", f); };
+var overflow = function(f){ return error("overflow", f); };

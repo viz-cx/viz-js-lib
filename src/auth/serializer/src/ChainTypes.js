@@ -1,8 +1,6 @@
 "use strict";
 
-var ChainTypes;
-
-module.exports = ChainTypes = {};
+export const ChainTypes = {};
 
 ChainTypes.reserved_spaces = {
   relative_protocol_ids: 0,

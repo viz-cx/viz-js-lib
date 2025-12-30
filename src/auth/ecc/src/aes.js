@@ -2,9 +2,9 @@ import secureRandom from 'secure-random';
 import ByteBuffer from 'bytebuffer';
 import crypto from 'browserify-aes';
 import assert from 'assert';
-import PublicKey from './key_public';
-import PrivateKey from './key_private';
-import hash from './hash';
+import PublicKey from './key_public.js';
+import PrivateKey from './key_private.js';
+import { sha512, sha256 } from './hash.js';
 
 const Long = ByteBuffer.Long;
 
@@ -68,7 +68,7 @@ function crypt(private_key, public_key, nonce, message, checksum) {
     ebuf.writeUint64(nonce)
     ebuf.append(S.toString('binary'), 'binary')
     ebuf = new Buffer(ebuf.copy(0, ebuf.offset).toBinary(), 'binary')
-    const encryption_key = hash.sha512(ebuf)
+    const encryption_key = sha512(ebuf)
 
     // D E B U G
     // console.log('crypt', {
@@ -85,7 +85,7 @@ function crypt(private_key, public_key, nonce, message, checksum) {
     const key = encryption_key.slice(0, 32)
 
     // check is first 64 bit of sha256 hash treated as uint64_t truncated to 32 bits.
-    let check = hash.sha256(encryption_key)
+    let check = sha256(encryption_key)
     check = check.slice(0, 4)
     const cbuf = ByteBuffer.fromBinary(check.toString('binary'), ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN)
     check = cbuf.readUint32()
@@ -107,7 +107,7 @@ function crypt(private_key, public_key, nonce, message, checksum) {
 */
 export function simpleDecoder(data,passphrase){
     let buff=new Buffer(data, 'base64');
-    let passphrase_sha512=hash.sha512(passphrase);
+    let passphrase_sha512=sha512(passphrase);
     let key = passphrase_sha512.slice(0, 32);
     let iv = passphrase_sha512.slice(32, 48);
     let decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
@@ -121,7 +121,7 @@ export function simpleDecoder(data,passphrase){
     @return {string} base64
 */
 export function simpleEncoder(data,passphrase){
-    let passphrase_sha512=hash.sha512(passphrase);
+    let passphrase_sha512=sha512(passphrase);
     let key = passphrase_sha512.slice(0, 32);
     let iv = passphrase_sha512.slice(32, 48);
     let buff=new Buffer(data,'utf-8');

@@ -1,10 +1,6 @@
-import ecc from "../src/auth/ecc/index.js"
-const { PrivateKey, PublicKey, Signature } = ecc
+import { PrivateKey, PublicKey, Signature }  from "../src/auth/ecc/index.js"
 import assert from "assert"
-
-var secureRandom = require('secure-random');
-var hash = require('../src/auth/ecc/src/hash');
-var key = require('../src/auth/ecc/src/key_utils');
+import {sha256 } from '../src/auth/ecc/src/hash.js';
 
 describe("viz.auth: Crypto", function() {
 
@@ -32,12 +28,12 @@ describe("viz.auth: derives", ()=> {
     let one_time_private = PrivateKey.fromHex("8fdfdde486f696fd7c6313325e14d3ff0c34b6e2c390d1944cbfe150f4457168")
     let to_public = PublicKey.fromStringOrThrow("VIZ7vbxtK1WaZqXsiCHPcjVFBewVj8HFRd5Z5XZDpN6Pvb2dZcMqK")
     let secret = one_time_private.get_shared_secret( to_public )
-    let child = hash.sha256( secret )
+    let child = sha256( secret )
 
     // Check everything above with `wdump((child));` from the witness_node:
     assert.equal(child.toString('hex'), "1f296fa48172d9af63ef3fb6da8e369e6cc33c1fb7c164207a3549b39e8ef698")
 
-    let nonce = hash.sha256( one_time_private.toBuffer() )
+    let nonce = sha256( one_time_private.toBuffer() )
     assert.equal(nonce.toString('hex'), "462f6c19ece033b5a3dba09f1e1d7935a5302e4d1eac0a84489cdc8339233fbf")
 
     it("child from public", ()=> assert.equal(
@@ -46,7 +42,7 @@ describe("viz.auth: derives", ()=> {
         "derive child public key"
     ))
 
-    // child = hash.sha256( one_time_private.get_secret( to_public ))
+    // child = sha256( one_time_private.get_secret( to_public ))
     it("child from private", ()=> assert.equal(
         PrivateKey.fromSeed("alice-brain-key").child(child).toPublicKey().toString(),
         "VIZ6XA72XARQCain961PCJnXiKYdEMrndNGago2PV5bcUiVyzJ6iL",
@@ -63,10 +59,10 @@ describe("viz.auth: derives", ()=> {
     //         let privkey2 = key.get_random_key()
     //
     //         let secret1 = one_time_private.get_shared_secret( privkey1.toPublicKey() )
-    //         let child1 = hash.sha256( secret1 )
+    //         let child1 = sha256( secret1 )
     //
     //         let secret2 = privkey2.get_shared_secret( privkey2.toPublicKey() )
-    //         let child2 = hash.sha256( secret2 )
+    //         let child2 = sha256( secret2 )
     //
     //         it("child from public", ()=> assert.equal(
     //             privkey1.toPublicKey().child(child1).toString(),
@@ -84,15 +80,3 @@ describe("viz.auth: derives", ()=> {
     // })
 
 })
-
-var min_time_elapsed = function(f){
-    var start_t = Date.now();
-    var ret = f();
-    var elapsed = Date.now() - start_t;
-    assert.equal(
-        // repeat operations may take less time
-        elapsed >= 250 * 0.8, true,
-        `minimum time requirement was not met, instead only ${elapsed/1000.0} elapsed`
-    );
-    return ret;
-};

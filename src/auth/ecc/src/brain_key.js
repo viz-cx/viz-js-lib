@@ -1,5 +1,4 @@
-
-export function normalize(brain_key) {
+export default function normalize(brain_key) {
     if (typeof brain_key !== 'string') {
         throw new Error("string required for brain_key");
     }

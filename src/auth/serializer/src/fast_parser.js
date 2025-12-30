@@ -1,4 +1,4 @@
-import { PublicKey } from "../../ecc"
+import { PublicKey } from "../../ecc/index.js";
 
 class FastParser {
 
@@ -54,4 +54,4 @@ class FastParser {
     }
 }
 
-module.exports = FastParser;
+export default FastParser;

@@ -1,15 +1,14 @@
-var assert = require('assert');
-var types = require('../src/auth/serializer/src/types');
-var ops = require('../src/auth/serializer/src/operations');
+import assert from 'assert';
+import operation from '../src/auth/serializer/src/operations.js';
 
 describe("viz.auth: operation test", ()=> {
 
     it("templates", ()=> {
-        for(let op in ops) {
+        for(let op in operation) {
             switch(op) {
                 case "operation" : continue
             }
-            template(ops[op])
+            template(operation[op])
         }
     })
 

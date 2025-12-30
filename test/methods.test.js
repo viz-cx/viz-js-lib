@@ -1,8 +1,8 @@
 import assert from 'assert'
-import viz from '../src'
+import viz from '../src/api/index.js'
 
-import { camelCase } from '../src/utils'
-import { methods_test } from './methods_by_version'
+import { camelCase } from '../src/utils.js'
+import { methods_test } from './methods_by_version.js'
 
 describe('viz.methods', () => {
 

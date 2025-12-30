@@ -1,7 +1,6 @@
-import get from "lodash/get";
-import { key_utils } from "./auth/ecc";
+import { get_random_key } from "./auth/ecc/src/key_utils.js";
 
-module.exports = VIZ_API => {
+export default VIZ_API => {
   function numberWithCommas(x) {
     return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
@@ -50,7 +49,7 @@ module.exports = VIZ_API => {
 
   function createSuggestedPassword() {
     const PASSWORD_LENGTH = 32;
-    const privateKey = key_utils.get_random_key();
+    const privateKey = get_random_key();
     return privateKey.toWif().substring(3, 3 + PASSWORD_LENGTH);
   }
 

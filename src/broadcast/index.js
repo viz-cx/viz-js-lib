@@ -1,14 +1,13 @@
 import Promise from 'bluebird';
 import newDebug from 'debug';
-import noop from 'lodash/noop';
-
-import broadcastHelpers from './helpers';
-import formatterFactory from '../formatter';
-import operations from './operations';
-import nodeApi from '../api';
-import nodeAuth from '../auth';
-import { camelCase } from '../utils';
-import config from '../config'
+import noop from 'lodash/noop.js';
+import broadcastHelpers from './helpers.js';
+import formatterFactory from '../formatter.js';
+import operation from './operations.js';
+import nodeApi from '../api/index.js';
+import nodeAuth from '../auth/index.js';
+import { camelCase } from '../utils.js';
+import config from '../config.js'
 
 const debug = newDebug('viz:broadcast');
 const formatter = formatterFactory(nodeApi);
@@ -86,7 +85,7 @@ Broadcaster._prepareTransaction = function Broadcaster$_prepareTransaction(tx) {
 // Generated wrapper ----------------------------------------------------------
 
 // Generate operations from operations.js
-operations.forEach((operation) => {
+operation.forEach((operation) => {
   const operationName = camelCase(operation.operation);
   const operationParams = operation.params || [];
 
@@ -120,7 +119,7 @@ operations.forEach((operation) => {
     function Broadcaster$specializedSend(wif, ...args) {
       debug(`Parsing operation "${operationName}" with`, {args});
       const options = operationParams.reduce((memo, param, i) => {
-        memo[param] = args[i]; // eslint-disable-line no-param-reassign
+        memo[param] = args[i];
         return memo;
       }, {});
       const callback = args[operationParams.length];
@@ -133,4 +132,4 @@ broadcastHelpers(Broadcaster);
 
 Promise.promisifyAll(Broadcaster);
 
-exports = module.exports = Broadcaster;
+export default Broadcaster;
