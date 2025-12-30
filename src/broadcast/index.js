@@ -3,7 +3,7 @@ import newDebug from 'debug';
 import noop from 'lodash/noop.js';
 import broadcastHelpers from './helpers.js';
 import formatterFactory from '../formatter.js';
-import operation from './operations.js';
+import operations from './operations.js';
 import nodeApi from '../api/index.js';
 import nodeAuth from '../auth/index.js';
 import { camelCase } from '../utils.js';
@@ -50,7 +50,7 @@ Broadcaster._prepareTransaction = function Broadcaster$_prepareTransaction(tx) {
   return propertiesP
     .then((properties) => {
       // Set defaults on the transaction
-      const chainDate = new Date(properties.time + 'Z');
+      const chainDate = new Date(`${properties.time  }Z`);
       let need_get_block=true;
       if(typeof properties.last_irreversible_block_ref_num !== 'undefined') {
         if(0 != properties.last_irreversible_block_ref_num){
@@ -85,7 +85,7 @@ Broadcaster._prepareTransaction = function Broadcaster$_prepareTransaction(tx) {
 // Generated wrapper ----------------------------------------------------------
 
 // Generate operations from operations.js
-operation.forEach((operation) => {
+operations.forEach((operation) => {
   const operationName = camelCase(operation.operation);
   const operationParams = operation.params || [];
 

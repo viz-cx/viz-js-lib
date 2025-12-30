@@ -3,7 +3,7 @@ import {encode, decode} from '../src/auth/memo.js';
 import {PrivateKey} from '../src/auth/ecc/index.js';
 
 
-const private_key = PrivateKey.fromSeed("")
+const private_key = PrivateKey.fromSeed('')
 const public_key = private_key.toPublicKey()
 
 describe('viz.auth: memo', ()=> {

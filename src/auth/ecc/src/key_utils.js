@@ -20,11 +20,11 @@ export function addEntropy(...ints) {
 export function random32ByteBuffer(entropy = this.browserEntropy()) {
 
     if (!(typeof entropy === 'string')) {
-        throw new Error("string required for entropy");
+        throw new Error('string required for entropy');
     }
 
     if (entropy.length < 32) {
-        throw new Error("expecting at least 32 bytes of entropy");
+        throw new Error('expecting at least 32 bytes of entropy');
     }
 
     const start_t = Date.now();
@@ -46,21 +46,21 @@ export function get_random_key(entropy) {
 export function browserEntropy() {
     let entropyStr = Array(entropyArray).join();
     try {
-        entropyStr += (new Date()).toString() + " " + window.screen.height + " " + window.screen.width + " " +
-            window.screen.colorDepth + " " + " " + window.screen.availHeight + " " + window.screen.availWidth + " " +
-            window.screen.pixelDepth + navigator.language + " " + window.location + " " + window.history.length;
+        entropyStr += `${(new Date()).toString()  } ${  window.screen.height  } ${  window.screen.width  } ${
+            window.screen.colorDepth  } ` + ` ${  window.screen.availHeight  } ${  window.screen.availWidth  } ${
+            window.screen.pixelDepth  }${navigator.language  } ${  window.location  } ${  window.history.length}`;
 
         for (let i = 0, mimeType; i < navigator.mimeTypes.length; i++) {
             mimeType = navigator.mimeTypes[i];
-            entropyStr += mimeType.description + " " + mimeType.type + " " + mimeType.suffixes + " ";
+            entropyStr += `${mimeType.description  } ${  mimeType.type  } ${  mimeType.suffixes  } `;
         }
-        console.log("INFO\tbrowserEntropy gathered", entropyCount, 'events');
-    } catch (error) {
+        console.log('INFO\tbrowserEntropy gathered', entropyCount, 'events');
+    } catch {
         //nodejs:ReferenceError: window is not defined
         entropyStr += sha256((new Date()).toString());
     }
 
     const b = new Buffer(entropyStr);
-    entropyStr += b.toString('binary') + " " + (new Date()).toString();
+    entropyStr += `${b.toString('binary')  } ${  (new Date()).toString()}`;
     return entropyStr;
 }

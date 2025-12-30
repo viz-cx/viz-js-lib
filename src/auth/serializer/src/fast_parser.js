@@ -1,4 +1,4 @@
-import { PublicKey } from "../../ecc/index.js";
+import { PublicKey } from '../../ecc/index.js';
 
 class FastParser {
 
@@ -7,13 +7,13 @@ class FastParser {
             return;
         }
         if (buffer) {
-            let data = buffer.slice(0, len).toString('binary');
+            const data = buffer.slice(0, len).toString('binary');
             b.append(data, 'binary');
             while (len-- > data.length) {
                 b.writeUint8(0);
             }
         } else {
-            let b_copy = b.copy(b.offset, b.offset + len);
+            const b_copy = b.copy(b.offset, b.offset + len);
             b.skip(len);
             return new Buffer(b_copy.toBinary(), 'binary');
         }
@@ -22,8 +22,9 @@ class FastParser {
 
     static public_key(b, public_key) {
         if (!b) { return; }
+        let buffer
         if (public_key) {
-            var buffer = public_key.toBuffer();
+            buffer = public_key.toBuffer();
             b.append(buffer.toString('binary'), 'binary');
             return;
         } else {

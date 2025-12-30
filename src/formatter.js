@@ -1,15 +1,15 @@
-import { get_random_key } from "./auth/ecc/src/key_utils.js";
+import { get_random_key } from './auth/ecc/src/key_utils.js';
 
 export default VIZ_API => {
   function numberWithCommas(x) {
-    return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return x.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
   function vestingVIZ(account, gprops) {
-    const shares = parseFloat(account.vesting_shares.split(" ")[0]);
-    const total_shares = parseFloat(gprops.total_vesting_shares.split(" ")[0]);
+    const shares = parseFloat(account.vesting_shares.split(' ')[0]);
+    const total_shares = parseFloat(gprops.total_vesting_shares.split(' ')[0]);
     const total_vest_viz = parseFloat(
-      gprops.total_vesting_fund.split(" ")[0]
+      gprops.total_vesting_fund.split(' ')[0]
     );
     const vesting_viz = total_vest_viz * (shares / total_shares);
     return vesting_viz;
@@ -20,13 +20,11 @@ export default VIZ_API => {
     { gprops, vesting_viz } = {}
   ) {
     const promises = [];
-    const username = account.name;
-    const assetPrecision = 1000;
 
     if (!vesting_viz) {
       if (!gprops) {
         promises.push(
-          VIZ_API.getStateAsync(`/@{username}`).then(data => {
+          VIZ_API.getStateAsync('/@{username}').then(data => {
             gprops = data.props;
             vesting_viz = vestingVIZ(account, gprops);
           })
@@ -37,7 +35,7 @@ export default VIZ_API => {
     }
 
     return Promise.all(promises).then(() => {
-      const balance = parseFloat(account.balance.split(" ")[0]);
+      const balance = parseFloat(account.balance.split(' ')[0]);
 
       const total_viz =
         vesting_viz +
@@ -54,7 +52,7 @@ export default VIZ_API => {
   }
 
   return {
-    sharesToVIZ: function(
+    sharesToVIZ(
       vestingShares,
       totalVestingShares,
       totalVestingFund
@@ -65,17 +63,17 @@ export default VIZ_API => {
       );
     },
 
-    contentPermlink: function(parentAuthor, parentPermlink) {
+    contentPermlink(parentAuthor, parentPermlink) {
       const timeStr = new Date()
         .toISOString()
-        .replace(/[^a-zA-Z0-9]+/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, '')
         .toLowerCase();
-      parentPermlink = parentPermlink.replace(/(-\d{8}t\d{9}z)/g, "");
-      return "re-" + parentAuthor + "-" + parentPermlink + "-" + timeStr;
+      parentPermlink = parentPermlink.replace(/(-\d{8}t\d{9}z)/g, '');
+      return `re-${  parentAuthor  }-${  parentPermlink  }-${  timeStr}`;
     },
 
-    amount: function(amount, asset) {
-      return amount.toFixed(3) + " " + asset;
+    amount(amount, asset) {
+      return `${amount.toFixed(3)  } ${  asset}`;
     },
     numberWithCommas,
     vestingVIZ,

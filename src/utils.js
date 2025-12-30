@@ -1,9 +1,10 @@
+/* eslint-disable no-shadow */
 import { simpleEncoder } from './auth/ecc/src/aes.js';
 import viz from './api/index.js';
 
 const snakeCaseRe = /_([a-z])/g;
 export function camelCase(str) {
-  return str.replace(snakeCaseRe, function(_m, l) {
+  return str.replace(snakeCaseRe, (_m, l) => {
     return l.toUpperCase();
   });
 }
@@ -11,37 +12,37 @@ export function camelCase(str) {
 export function validateAccountName(value) {
   let i, label, len, suffix;
 
-  suffix = "Account name should ";
+  suffix = 'Account name should ';
   if (!value) {
-    return suffix + "not be empty.";
+    return `${suffix  }not be empty.`;
   }
-  const length = value.length;
+  const {length} = value;
   if (length < 2) {
-    return suffix + "be longer.";
+    return `${suffix  }be longer.`;
   }
   if (length > 25) {
-    return suffix + "be shorter.";
+    return `${suffix  }be shorter.`;
   }
   if (/\./.test(value)) {
-    suffix = "Each account segment should ";
+    suffix = 'Each account segment should ';
   }
-  const ref = value.split(".");
+  const ref = value.split('.');
   for (i = 0, len = ref.length; i < len; i++) {
     label = ref[i];
     if (!/^[a-z]/.test(label)) {
-      return suffix + "start with a letter.";
+      return `${suffix  }start with a letter.`;
     }
     if (!/^[a-z0-9-]*$/.test(label)) {
-      return suffix + "have only letters, digits, or dashes.";
+      return `${suffix  }have only letters, digits, or dashes.`;
     }
     if (/--/.test(label)) {
-      return suffix + "have only one dash in a row.";
+      return `${suffix  }have only one dash in a row.`;
     }
     if (!/[a-z0-9]$/.test(label)) {
-      return suffix + "end with a letter or digit.";
+      return `${suffix  }end with a letter or digit.`;
     }
     if (!(label.length >= 2)) {
-      return suffix + "be longer";
+      return `${suffix  }be longer`;
     }
   }
   return null;
@@ -51,8 +52,8 @@ export function voiceEvent(wif,account,event_type,target_account,target_block,da
   loop=typeof loop === 'undefined'?false:loop;
   callback=typeof callback === 'undefined'?function(){}:callback;
 
-  let use_previous=function(wif,account,event_type,target_account,target_block,data,previous,callback){
-    let object={
+  const use_previous=function(wif,account,event_type,target_account,target_block,data,previous,callback){
+    const object={
       'p':previous,
       'e':event_type,//h - hide, e - edit, a - append
       'b':target_block,//block to hide, edit or append
@@ -63,7 +64,7 @@ export function voiceEvent(wif,account,event_type,target_account,target_block,da
     if(typeof data !== 'undefined'){
       object['d']=data;//optional
     }
-    viz.broadcast.custom(wif,[],[account],'VE',JSON.stringify(object),function(err,result){
+    viz.broadcast.custom(wif,[],[account],'VE',JSON.stringify(object),(err) =>{
       callback(!err);
     });
   }
@@ -71,7 +72,7 @@ export function voiceEvent(wif,account,event_type,target_account,target_block,da
     use_previous(wif,account,event_type,target_account,target_block,data,loop,callback);
   }
   else{
-    viz.api.getAccount(account,'VE',function(err,result){
+    viz.api.getAccount(account,'VE',(err,result) =>{
       if(!err){
         use_previous(wif,account,event_type,target_account,target_block,data,result.custom_sequence_block_num,callback);
       }
@@ -89,8 +90,8 @@ export function voiceText(wif,account,text,reply,share,beneficiaries,loop,callba
   loop=typeof loop === 'undefined'?false:loop;
   callback=typeof callback === 'undefined'?function(){}:callback;
 
-  let use_previous=function(wif,account,text,reply,share,beneficiaries,previous,callback){
-    let object={
+  const use_previous=function(wif,account,text,reply,share,beneficiaries,previous,callback){
+    const object={
       'p':previous,
       //'t':'t',//text as default type
       'd':{
@@ -108,7 +109,7 @@ export function voiceText(wif,account,text,reply,share,beneficiaries,loop,callba
     if(beneficiaries){//json example: [{"account":"committee","weight":1000}]
       object['d']['b']=beneficiaries;
     }
-    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),function(err,result){
+    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),(err) =>{
       callback(!err);
     });
   }
@@ -116,7 +117,7 @@ export function voiceText(wif,account,text,reply,share,beneficiaries,loop,callba
     use_previous(wif,account,text,reply,share,beneficiaries,loop,callback);
   }
   else{
-    viz.api.getAccount(account,'V',function(err,result){
+    viz.api.getAccount(account,'V',(err,result) =>{
       if(!err){
         use_previous(wif,account,text,reply,share,beneficiaries,result.custom_sequence_block_num,callback);
       }
@@ -134,8 +135,8 @@ export function voiceEncodedText(wif,account,passphrase,comment,text,reply,share
   loop=typeof loop === 'undefined'?false:loop;
   callback=typeof callback === 'undefined'?function(){}:callback;
 
-  let use_previous=function(wif,account,passphrase,comment,text,reply,share,beneficiaries,previous,callback){
-    let object={
+  const use_previous=function(wif,account,passphrase,comment,text,reply,share,beneficiaries,previous,callback){
+    const object={
       'd':{
         't':text,
       }
@@ -157,8 +158,8 @@ export function voiceEncodedText(wif,account,passphrase,comment,text,reply,share
       if(typeof comment === 'object'){
         comment=comment.reverse();
       }
-      for(let i in passphrase){
-        let number=i;
+      for(const i in passphrase){
+        const number=i;
         if(0==number){
           object['nt']='t';//text
         }
@@ -187,7 +188,7 @@ export function voiceEncodedText(wif,account,passphrase,comment,text,reply,share
     }
     object['t']='e';//encoded
     object['p']=previous;
-    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),function(err,result){
+    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),(err) =>{
       callback(!err);
     });
   }
@@ -195,7 +196,7 @@ export function voiceEncodedText(wif,account,passphrase,comment,text,reply,share
     use_previous(wif,account,passphrase,comment,text,reply,share,beneficiaries,loop,callback);
   }
   else{
-    viz.api.getAccount(account,'V',function(err,result){
+    viz.api.getAccount(account,'V',(err,result) =>{
       if(!err){
         use_previous(wif,account,passphrase,comment,text,reply,share,beneficiaries,result.custom_sequence_block_num,callback);
       }
@@ -215,8 +216,8 @@ export function voicePublication(wif,account,title,markdown,description,image,re
   loop=typeof loop === 'undefined'?false:loop;
   callback=typeof callback === 'undefined'?function(){}:callback;
 
-  let use_previous=function(wif,account,title,markdown,description,image,reply,share,beneficiaries,previous,callback){
-    let object={
+  const use_previous=function(wif,account,title,markdown,description,image,reply,share,beneficiaries,previous,callback){
+    const object={
       'p':previous,
       't':'p',//publication
       'd':{
@@ -241,7 +242,7 @@ export function voicePublication(wif,account,title,markdown,description,image,re
     if(beneficiaries){//json example: [{"account":"committee","weight":1000}]
       object['d']['b']=beneficiaries;
     }
-    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),function(err,result){
+    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),(err) =>{
       callback(!err);
     });
   }
@@ -249,7 +250,7 @@ export function voicePublication(wif,account,title,markdown,description,image,re
     use_previous(wif,account,title,markdown,description,image,reply,share,beneficiaries,loop,callback);
   }
   else{
-    viz.api.getAccount(account,'V',function(err,result){
+    viz.api.getAccount(account,'V',(err,result) =>{
       if(!err){
         use_previous(wif,account,title,markdown,description,image,reply,share,beneficiaries,result.custom_sequence_block_num,callback);
       }
@@ -269,8 +270,8 @@ export function voiceEncodedPublication(wif,account,passphrase,comment,title,mar
   loop=typeof loop === 'undefined'?false:loop;
   callback=typeof callback === 'undefined'?function(){}:callback;
 
-  let use_previous=function(wif,account,passphrase,comment,title,markdown,description,image,reply,share,beneficiaries,previous,callback){
-    let object={
+  const use_previous=function(wif,account,passphrase,comment,title,markdown,description,image,reply,share,beneficiaries,previous,callback){
+    const object={
       't':'p',//publication
       'd':{
         't':title,
@@ -300,8 +301,8 @@ export function voiceEncodedPublication(wif,account,passphrase,comment,title,mar
       if(typeof comment === 'object'){
         comment=comment.reverse();
       }
-      for(let i in passphrase){
-        let number=i;
+      for(const i in passphrase){
+        const number=i;
         if(0==number){
           object['nt']='p';//publication
         }
@@ -329,7 +330,7 @@ export function voiceEncodedPublication(wif,account,passphrase,comment,title,mar
     }
     object['t']='e';//encoded
     object['p']=previous;
-    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),function(err,result){
+    viz.broadcast.custom(wif,[],[account],'V',JSON.stringify(object),(err) =>{
       callback(!err);
     });
   }
@@ -337,7 +338,7 @@ export function voiceEncodedPublication(wif,account,passphrase,comment,title,mar
     use_previous(wif,account,passphrase,comment,title,markdown,description,image,reply,share,beneficiaries,loop,callback);
   }
   else{
-    viz.api.getAccount(account,'V',function(err,result){
+    viz.api.getAccount(account,'V',(err,result) =>{
       if(!err){
         use_previous(wif,account,passphrase,comment,title,markdown,description,image,reply,share,beneficiaries,result.custom_sequence_block_num,callback);
       }

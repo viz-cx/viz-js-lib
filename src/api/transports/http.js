@@ -45,7 +45,7 @@ export default class HttpTransport extends Transport {
     debug('Steem::send', api, data);
     const id = data.id || this.id++;
     const params = [api, data.method, data.params];
-    const url = config.get("websocket");
+    const url = config.get('websocket');
     jsonRpc(url, {method: 'call', id, params})
       .then(res => { callback(null, res) }, err => { callback(err) })
   }

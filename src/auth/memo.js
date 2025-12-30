@@ -38,12 +38,12 @@ export function decode(private_key, memo) {
     const mbuf = ByteBuffer.fromBinary(memo.toString('binary'), ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN)
     try {
         mbuf.mark()
-        return '#' + mbuf.readVString()
-    } catch(e) {
+        return `#${  mbuf.readVString()}`
+    } catch {
         mbuf.reset()
         // Sender did not length-prefix the memo
         memo = new Buffer(mbuf.toString('binary'), 'binary').toString('utf-8')
-        return '#' + memo
+        return `#${  memo}`
     }
 }
 
@@ -82,7 +82,7 @@ export function encode(private_key, public_key, memo, testNonce) {
     })
     // serialize
     memo = encMemo.toBuffer(memo)
-    return '#' + bs58.encode(new Buffer(memo, 'binary'))
+    return `#${  bs58.encode(new Buffer(memo, 'binary'))}`
 }
 
 let encodeTest = undefined

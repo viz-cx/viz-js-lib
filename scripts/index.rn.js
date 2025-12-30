@@ -17,5 +17,5 @@ global.crypto = {
   },
 };
 
-require('../dist/viz.min.js');
-module.exports = global.viz;
+import '../dist/viz.min.js';
+export default global.viz;

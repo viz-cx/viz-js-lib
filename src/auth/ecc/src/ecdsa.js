@@ -2,6 +2,7 @@ import assert, { equal, strictEqual } from 'assert' // from github.com/bitcoinjs
 import { sha256, HmacSHA256 } from './hash.js'
 import enforceType from './enforce_types.js'
 import BigInteger from 'bigi'
+// eslint-disable-next-line no-duplicate-imports
 import bigi from 'bigi'
 import ECSignature from './ecsignature.js'
 
@@ -18,9 +19,9 @@ function deterministicGenerateK(curve, hash, d, checkSig, nonce) {
   // sanity check
   equal(hash.length, 32, 'Hash must be 256 bit')
 
-  var x = d.toBuffer(32)
-  var k = new Buffer(32)
-  var v = new Buffer(32)
+  const x = d.toBuffer(32)
+  let k = new Buffer(32)
+  let v = new Buffer(32)
 
   // Step B
   v.fill(1)
@@ -44,7 +45,7 @@ function deterministicGenerateK(curve, hash, d, checkSig, nonce) {
   // Step H2b
   v = HmacSHA256(v, k)
 
-  var T = fromBuffer(v)
+  let T = bigi.fromBuffer(v)
 
   // Step H3, repeat until T is within the interval [1, n - 1]
   while ((T.signum() <= 0) || (T.compareTo(curve.n) >= 0) || !checkSig(T)) {
@@ -55,7 +56,7 @@ function deterministicGenerateK(curve, hash, d, checkSig, nonce) {
     // Step H2b again
     v = HmacSHA256(v, k)
 
-    T = fromBuffer(v)
+    T = bigi.fromBuffer(v)
   }
 
   return T
@@ -64,14 +65,14 @@ function deterministicGenerateK(curve, hash, d, checkSig, nonce) {
 
 function sign(curve, hash, d, nonce) {
 
-  var e = bigi.fromBuffer(hash)
-  var n = curve.n
-  var G = curve.G
+  const e = bigi.fromBuffer(hash)
+  const {n} = curve
+  const {G} = curve
 
-  var r, s
-  var k = deterministicGenerateK(curve, hash, d, function (k) {
+  let r, s
+  deterministicGenerateK(curve, hash, d, (k) => {
     // find canonically valid signature
-    var Q = G.multiply(k)
+    const Q = G.multiply(k)
 
     if (curve.isInfinity(Q)) return false
 
@@ -84,7 +85,7 @@ function sign(curve, hash, d, nonce) {
     return true
   }, nonce)
 
-  var N_OVER_TWO = n.shiftRight(1)
+  const N_OVER_TWO = n.shiftRight(1)
 
   // enforce low S values, see bip62: 'low s values in signatures'
   if (s.compareTo(N_OVER_TWO) > 0) {
@@ -95,35 +96,35 @@ function sign(curve, hash, d, nonce) {
 }
 
 function verifyRaw(curve, e, signature, Q) {
-  var n = curve.n
-  var G = curve.G
+  const {n} = curve
+  const {G} = curve
 
-  var r = signature.r
-  var s = signature.s
+  const {r} = signature
+  const {s} = signature
 
   // 1.4.1 Enforce r and s are both integers in the interval [1, n − 1]
   if (r.signum() <= 0 || r.compareTo(n) >= 0) return false
   if (s.signum() <= 0 || s.compareTo(n) >= 0) return false
 
   // c = s^-1 mod n
-  var c = s.modInverse(n)
+  const c = s.modInverse(n)
 
   // 1.4.4 Compute u1 = es^−1 mod n
   //               u2 = rs^−1 mod n
-  var u1 = e.multiply(c).mod(n)
-  var u2 = r.multiply(c).mod(n)
+  const u1 = e.multiply(c).mod(n)
+  const u2 = r.multiply(c).mod(n)
 
   // 1.4.5 Compute R = (xR, yR) = u1G + u2Q
-  var R = G.multiplyTwo(u1, Q, u2)
+  const R = G.multiplyTwo(u1, Q, u2)
 
   // 1.4.5 (cont.) Enforce R is not at infinity
   if (curve.isInfinity(R)) return false
 
   // 1.4.6 Convert the field element R.x to an integer
-  var xR = R.affineX
+  const xR = R.affineX
 
   // 1.4.7 Set v = xR mod n
-  var v = xR.mod(n)
+  const v = xR.mod(n)
 
   // 1.4.8 If v = r, output "valid", and if v != r, output "invalid"
   return v.equals(r)
@@ -132,7 +133,7 @@ function verifyRaw(curve, e, signature, Q) {
 function verify(curve, hash, signature, Q) {
   // 1.4.2 H = Hash(M), already done by the user
   // 1.4.3 e = H
-  var e = bigi.fromBuffer(hash)
+  const e = bigi.fromBuffer(hash)
   return verifyRaw(curve, e, signature, Q)
 }
 
@@ -147,38 +148,38 @@ function verify(curve, hash, signature, Q) {
 function recoverPubKey(curve, e, signature, i) {
   strictEqual(i & 3, i, 'Recovery param is more than two bits')
 
-  var n = curve.n
-  var G = curve.G
+  const {n} = curve
+  const {G} = curve
 
-  var r = signature.r
-  var s = signature.s
+  const {r} = signature
+  const {s} = signature
 
   assert(r.signum() > 0 && r.compareTo(n) < 0, 'Invalid r value')
   assert(s.signum() > 0 && s.compareTo(n) < 0, 'Invalid s value')
 
   // A set LSB signifies that the y-coordinate is odd
-  var isYOdd = i & 1
+  const isYOdd = i & 1
 
   // The more significant bit specifies whether we should use the
   // first or second candidate key.
-  var isSecondKey = i >> 1
+  const isSecondKey = i >> 1
 
   // 1.1 Let x = r + jn
-  var x = isSecondKey ? r.add(n) : r
-  var R = curve.pointFromX(isYOdd, x)
+  const x = isSecondKey ? r.add(n) : r
+  const R = curve.pointFromX(isYOdd, x)
 
   // 1.4 Check that nR is at infinity
-  var nR = R.multiply(n)
+  const nR = R.multiply(n)
   assert(curve.isInfinity(nR), 'nR is not a valid curve point')
 
   // Compute -e from e
-  var eNeg = e.negate().mod(n)
+  const eNeg = e.negate().mod(n)
 
   // 1.6.1 Compute Q = r^-1 (sR -  eG)
   //               Q = r^-1 (sR + -eG)
-  var rInv = r.modInverse(n)
+  const rInv = r.modInverse(n)
 
-  var Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
+  const Q = R.multiplyTwo(s, G, eNeg).multiply(rInv)
   curve.validate(Q)
 
   return Q
@@ -196,8 +197,8 @@ function recoverPubKey(curve, e, signature, i) {
   * that resulted in a successful pubkey recovery.
   */
 function calcPubKeyRecoveryParam(curve, e, signature, Q) {
-  for (var i = 0; i < 4; i++) {
-    var Qprime = recoverPubKey(curve, e, signature, i)
+  for (let i = 0; i < 4; i++) {
+    const Qprime = recoverPubKey(curve, e, signature, i)
 
     // 1.6.2 Verify Q
     if (Qprime.equals(Q)) {

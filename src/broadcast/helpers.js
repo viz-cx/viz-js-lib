@@ -1,4 +1,4 @@
-import api from "../api/index.js";
+import api from '../api/index.js';
 
 const defaultWeight = 1;
 
@@ -7,7 +7,7 @@ export default Broadcaster => {
     activeWif,
     username,
     authorizedUsername,
-    role = "regular",
+    role = 'regular',
     cb
   ) => {
     api.getAccountsAsync([username]).then(([userAccount]) => {
@@ -23,9 +23,9 @@ export default Broadcaster => {
         return cb(null, null);
       }
       updatedAuthority.account_auths.push([authorizedUsername, defaultWeight]);
-      const master = role === "master" ? updatedAuthority : undefined;
-      const active = role === "active" ? updatedAuthority : undefined;
-      const regular = role === "regular" ? updatedAuthority : undefined;
+      const master = role === 'master' ? updatedAuthority : undefined;
+      const active = role === 'active' ? updatedAuthority : undefined;
+      const regular = role === 'regular' ? updatedAuthority : undefined;
       /** Add authority on user account */
       Broadcaster.accountUpdate(
         activeWif,
@@ -44,7 +44,7 @@ export default Broadcaster => {
     activeWif,
     username,
     authorizedUsername,
-    role = "regular",
+    role = 'regular',
     cb
   ) => {
     api.getAccountsAsync([username]).then(([userAccount]) => {
@@ -62,9 +62,9 @@ export default Broadcaster => {
         return cb(null, null);
       }
 
-      const master = role === "master" ? updatedAuthority : undefined;
-      const active = role === "active" ? updatedAuthority : undefined;
-      const regular = role === "regular" ? updatedAuthority : undefined;
+      const master = role === 'master' ? updatedAuthority : undefined;
+      const active = role === 'active' ? updatedAuthority : undefined;
+      const regular = role === 'regular' ? updatedAuthority : undefined;
 
       Broadcaster.accountUpdate(
         activeWif,

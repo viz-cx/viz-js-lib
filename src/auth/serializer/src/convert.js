@@ -3,17 +3,17 @@ import ByteBuffer from 'bytebuffer';
 export default function(type){
 
     return {fromHex(hex) {
-        var b = ByteBuffer.fromHex(hex, ByteBuffer.LITTLE_ENDIAN);
+        const b = ByteBuffer.fromHex(hex, ByteBuffer.LITTLE_ENDIAN);
         return type.fromByteBuffer(b);
     },
 
     toHex(object) {
-        var b=toByteBuffer(type, object);
+        const b=toByteBuffer(type, object);
         return b.toHex();
     },
 
     fromBuffer(buffer){
-        var b = ByteBuffer.fromBinary(buffer.toString(), ByteBuffer.LITTLE_ENDIAN);
+        const b = ByteBuffer.fromBinary(buffer.toString(), ByteBuffer.LITTLE_ENDIAN);
         return type.fromByteBuffer(b);
     },
 
@@ -22,7 +22,7 @@ export default function(type){
     },
 
     fromBinary(string){
-        var b = ByteBuffer.fromBinary(string, ByteBuffer.LITTLE_ENDIAN);
+        const b = ByteBuffer.fromBinary(string, ByteBuffer.LITTLE_ENDIAN);
         return type.fromByteBuffer(b);
     },
 
@@ -32,8 +32,8 @@ export default function(type){
     };
 };
 
-var toByteBuffer=function(type, object){
-    var b = new ByteBuffer(ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN);
+const toByteBuffer=function(type, object){
+    const b = new ByteBuffer(ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN);
     type.appendByteBuffer(b, object);
     return b.copy(0, b.offset);
 };

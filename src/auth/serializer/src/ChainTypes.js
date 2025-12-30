@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export const ChainTypes = {};
 
@@ -77,6 +77,6 @@ ChainTypes.operations = {
 
 //types.hpp
 ChainTypes.object_type = {
-  "null": 0,
+  'null': 0,
   base: 1
 };

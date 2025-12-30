@@ -1,23 +1,14 @@
-var _my;
-var is_empty;
-var is_digits;
-var to_number;
-var require_match;
-var require_object_id;
-var require_object_type;
-var get_instance;
-var require_relative_type;
-var get_relative_instance;
-var require_protocol_type;
-var get_protocol_instance;
-var get_protocol_type;
-var require_implementation_type;
-var get_implementation_instance;
+let _my;
+let is_empty;
+let to_number;
+let require_object_id;
+let require_object_type;
+let get_protocol_type;
 import ByteBuffer from 'bytebuffer';
 import { ChainTypes } from './ChainTypes.js';
 
-var MAX_SAFE_INT = 9007199254740991;
-var MIN_SAFE_INT =-9007199254740991;
+const MAX_SAFE_INT = 9007199254740991;
+const MIN_SAFE_INT =-9007199254740991;
 
 /**
     Most validations are skipped and the value returned unchanged when an empty string, null, or undefined is encountered (except "required").
@@ -30,14 +21,14 @@ export default {
         return value === null || value === undefined;
     },
 
-    required(value, field_name=""){
+    required(value, field_name=''){
         if (is_empty(value) ){
             throw new Error(`value required ${field_name} ${value}`);
         }
         return value;
     },
 
-    require_long(value, field_name=""){
+    require_long(value, field_name=''){
         if (!ByteBuffer.Long.isLong(value)) {
             throw new Error(`Long value required ${field_name} ${value}`);
         }
@@ -46,7 +37,7 @@ export default {
 
     string(value){
         if (is_empty(value) ){ return value; }
-        if (typeof value !== "string") {
+        if (typeof value !== 'string') {
             throw new Error(`string required: ${value}`);
         }
         return value;
@@ -54,13 +45,13 @@ export default {
 
     number(value){
         if (is_empty(value) ){ return value; }
-        if (typeof value !== "number") {
+        if (typeof value !== 'number') {
             throw new Error(`number required: ${value}`);
         }
         return value;
     },
 
-    whole_number(value, field_name=""){
+    whole_number(value, field_name=''){
         if (is_empty(value) ){ return value; }
         if (/\./.test(value) ){
             throw new Error(`whole number required ${field_name} ${value}`);
@@ -68,7 +59,7 @@ export default {
         return value;
     },
 
-    unsigned(value, field_name=""){
+    unsigned(value, field_name=''){
         if (is_empty(value) ){ return value; }
         if (/-/.test(value) ){
             throw new Error(`unsigned required ${field_name} ${value}`);
@@ -76,16 +67,16 @@ export default {
         return value;
     },
 
-    is_digits: is_digits=function(value){
-        if (typeof value === "numeric") { return true; }
+    is_digits(value){
+        if (typeof value === 'number') { return true; }
         return /^[0-9]+$/.test(value);
     },
 
-    to_number: to_number=function(value, field_name=""){
+    to_number: to_number=function(value, field_name=''){
         if (is_empty(value) ){ return value; }
         _my.no_overflow53(value, field_name);
-        var int_value = (() => {
-            if (typeof value === "number") {
+        const int_value = (() => {
+            if (typeof value === 'number') {
                 return value;
             } else {
                 return parseInt(value);
@@ -94,23 +85,23 @@ export default {
         return int_value;
     },
 
-    to_long(value, field_name=""){
+    to_long(value, field_name=''){
         if (is_empty(value) ){ return value; }
         if (ByteBuffer.Long.isLong(value) ){ return value; }
 
         _my.no_overflow64(value, field_name);
-        if (typeof value === "number") {
-            value = ""+value;
+        if (typeof value === 'number') {
+            value = `${value}`;
         }
         return ByteBuffer.Long.fromString(value);
     },
 
-    to_string(value, field_name=""){
+    to_string(value, field_name=''){
         if (is_empty(value) ){ return value; }
-        if (typeof value === "string") { return value; }
-        if (typeof value === "number") {
+        if (typeof value === 'string') { return value; }
+        if (typeof value === 'number') {
             _my.no_overflow53(value, field_name);
-            return ""+value;
+            return `${value}`;
         }
         if (ByteBuffer.Long.isLong(value) ){
             return value.toString();
@@ -118,7 +109,7 @@ export default {
         throw `unsupported type ${field_name}: (${typeof value}) ${value}`;
     },
 
-    require_test(regex, value, field_name=""){
+    require_test(regex, value, field_name=''){
         if (is_empty(value) ){ return value; }
         if (!regex.test(value)) {
             throw new Error(`unmatched ${regex} ${field_name} ${value}`);
@@ -126,9 +117,9 @@ export default {
         return value;
     },
 
-    require_match: require_match=function(regex, value, field_name=""){
+    require_match(regex, value, field_name=''){
         if (is_empty(value) ){ return value; }
-        var match = value.match(regex);
+        const match = value.match(regex);
         if (match === null) {
             throw new Error(`unmatched ${regex} ${field_name} ${value}`);
         }
@@ -144,9 +135,9 @@ export default {
     // },
 
     // Does not support over 53 bits
-    require_range(min,max,value, field_name=""){
+    require_range(min,max,value, field_name=''){
         if (is_empty(value) ){ return value; }
-        var number = to_number(value);
+        to_number(value);
         if (value < min || value > max) {
             throw new Error(`out of range ${value} ${field_name} ${value}`);
         }
@@ -155,43 +146,43 @@ export default {
 
     require_object_type: require_object_type=function(
         reserved_spaces = 1, type, value,
-        field_name=""
+        field_name=''
     ){
         if (is_empty(value) ){ return value; }
-        var object_type = ChainTypes.object_type[type];
+        const object_type = ChainTypes.object_type[type];
         if (!object_type) {
             throw new Error(`Unknown object type: ${type}, ${field_name}, ${value}`);
         }
-        var re = new RegExp(`${reserved_spaces}\.${object_type}\.[0-9]+$`);
+        const re = new RegExp(`${reserved_spaces}.${object_type}.[0-9]+$`);
         if (!re.test(value)) {
             throw new Error(`Expecting ${type} in format `+ `${reserved_spaces}.${object_type}.[0-9]+ `+ `instead of ${value} ${field_name} ${value}`);
         }
         return value;
     },
 
-    get_instance: get_instance=function(reserve_spaces, type, value, field_name){
+    get_instance(reserve_spaces, type, value, field_name){
         if (is_empty(value) ){ return value; }
         require_object_type(reserve_spaces, type, value, field_name);
         return to_number(value.split('.')[2]);
     },
 
-    require_relative_type: require_relative_type=function(type, value, field_name){
+    require_relative_type(type, value, field_name){
         require_object_type(0, type, value, field_name);
         return value;
     },
 
-    get_relative_instance: get_relative_instance=function(type, value, field_name){
+    get_relative_instance(type, value, field_name){
         if (is_empty(value) ){ return value; }
         require_object_type(0, type, value, field_name);
         return to_number(value.split('.')[2]);
     },
 
-    require_protocol_type: require_protocol_type=function(type, value, field_name){
+    require_protocol_type(type, value, field_name){
         require_object_type(1, type, value, field_name);
         return value;
     },
 
-    get_protocol_instance: get_protocol_instance=function(type, value, field_name){
+    get_protocol_instance(type, value, field_name){
         if (is_empty(value) ){ return value; }
         require_object_type(1, type, value, field_name);
         return to_number(value.split('.')[2]);
@@ -200,37 +191,36 @@ export default {
     get_protocol_type: get_protocol_type=function(value, field_name){
         if (is_empty(value) ){ return value; }
         require_object_id(value, field_name);
-        var values = value.split('.');
+        const values = value.split('.');
         return to_number(values[1]);
     },
 
     get_protocol_type_name(value, field_name){
         if (is_empty(value) ){ return value; }
-        var type_id = get_protocol_type(value, field_name);
+        const type_id = get_protocol_type(value, field_name);
         return (Object.keys(ChainTypes.object_type))[type_id];
     },
 
-    require_implementation_type: require_implementation_type=function(type, value, field_name){
+    require_implementation_type(type, value, field_name){
         require_object_type(2, type, value, field_name);
         return value;
     },
 
-    get_implementation_instance: get_implementation_instance=function(type, value, field_name){
+    get_implementation_instance(type, value, field_name){
         if (is_empty(value) ){ return value; }
         require_object_type(2, type, value, field_name);
         return to_number(value.split('.')[2]);
     },
 
     // signed / unsigned decimal
-    no_overflow53(value, field_name=""){
-        if (typeof value === "number") {
+    no_overflow53(value, field_name=''){
+        if (typeof value === 'number') {
             if (value > MAX_SAFE_INT || value < MIN_SAFE_INT) {
                 throw new Error(`overflow ${field_name} ${value}`);
             }
             return;
         }
-        if (typeof value === "string") {
-            var int = parseInt(value);
+        if (typeof value === 'string') {
             if (value > MAX_SAFE_INT || value < MIN_SAFE_INT) {
                 throw new Error(`overflow ${field_name} ${value}`);
             }
@@ -245,7 +235,7 @@ export default {
     },
 
     // signed / unsigned whole numbers only
-    no_overflow64(value, field_name=""){
+    no_overflow64(value, field_name=''){
         // https://github.com/dcodeIO/Long.js/issues/20
         if (ByteBuffer.Long.isLong(value) ){ return; }
 
@@ -255,7 +245,7 @@ export default {
             return;
         }
 
-        if (typeof value === "string") {
+        if (typeof value === 'string') {
             // remove leading zeros, will cause a false positive
             value = value.replace(/^0+/,'');
             // remove trailing zeros
@@ -266,14 +256,14 @@ export default {
                 // remove trailing dot
                 value = value.substring(0, value.length - 1);
             }
-            if (value === "") { value = "0"; }
-            var long_string = ByteBuffer.Long.fromString(value).toString();
+            if (value === '') { value = '0'; }
+            const long_string = ByteBuffer.Long.fromString(value).toString();
             if (long_string !== value.trim()) {
                 throw new Error(`overflow ${field_name} ${value}`);
             }
             return;
         }
-        if (typeof value === "number") {
+        if (typeof value === 'number') {
             if (value > MAX_SAFE_INT || value < MIN_SAFE_INT) {
                 throw new Error(`overflow ${field_name} ${value}`);
             }

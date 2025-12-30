@@ -10,13 +10,13 @@ export default function runTests() {
     let pass = true
     function it(name, fn) {
         console.log('Testing', name)
-        rpt += 'Testing ' + name + '\n'
+        rpt += `Testing ${  name  }\n`
         try {
             fn()
         } catch(error) {
             console.error(error)
             pass = false
-            rpt += error.stack + '\n\n'
+            rpt += `${error.stack  }\n\n`
             serverApiRecordEvent('client_error', error)
         }
     }

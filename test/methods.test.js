@@ -12,7 +12,7 @@ describe('viz.methods', () => {
             .map( m => `${camelCase(m)}`)
             .sort()
 
-        let libMethods = Object.keys(viz.api.VIZ.prototype)
+        const libMethods = Object.keys(viz.api.VIZ.prototype)
             .filter( m => !m.endsWith('With'))
             .filter( m => !m.endsWith('Async'))
             .sort()

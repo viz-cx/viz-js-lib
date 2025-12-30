@@ -19,18 +19,16 @@ class Signature {
     }
 
     static fromBuffer(buf) {
-        var i, r, s;
         equal(buf.length, 65, 'Invalid signature length');
-        i = buf.readUInt8(0);
+        const i = buf.readUInt8(0);
         equal(i - 27, i - 27 & 7, 'Invalid signature parameter');
-        r = bigi.fromBuffer(buf.slice(1, 33));
-        s = bigi.fromBuffer(buf.slice(33));
+        const r = bigi.fromBuffer(buf.slice(1, 33));
+        const s = bigi.fromBuffer(buf.slice(33));
         return new Signature(r, s, i);
     };
 
     toBuffer() {
-        var buf;
-        buf = Buffer.alloc(65);
+        const buf = Buffer.alloc(65);
         buf.writeUInt8(this.i, 0);
         this.r.toBuffer(32).copy(buf, 1);
         this.s.toBuffer(32).copy(buf, 33);
@@ -45,12 +43,11 @@ class Signature {
         @return {PublicKey}
     */
     recoverPublicKey(sha256_buffer) {
-        let Q, e, i;
-        e = bigi.fromBuffer(sha256_buffer);
-        i = this.i;
+        const e = bigi.fromBuffer(sha256_buffer);
+        let {i} = this;
         i -= 27;
         i = i & 3;
-        Q = recoverPubKey(curve, e, this, i);
+        const Q = recoverPubKey(curve, e, this, i);
         return PublicKey.fromPoint(Q);
     };
 
@@ -61,7 +58,7 @@ class Signature {
         @return {Signature}
     */
     static signBuffer(buf, private_key) {
-        var _hash = sha256(buf);
+        const _hash = sha256(buf);
         return Signature.signBufferSha256(_hash, private_key)
     }
 
@@ -72,14 +69,14 @@ class Signature {
     */
     static signBufferSha256(buf_sha256, private_key) {
         if( buf_sha256.length !== 32 || ! Buffer.isBuffer(buf_sha256) )
-            throw new Error("buf_sha256: 32 byte buffer requred")
+            throw new Error('buf_sha256: 32 byte buffer requred')
         private_key = toPrivateObj(private_key)
         assert(private_key, 'private_key required')
 
-        var der, e, ecsignature, i, lenR, lenS, nonce;
+        let der, ecsignature, i, lenR, lenS, nonce;
         i = null;
         nonce = 0;
-        e = bigi.fromBuffer(buf_sha256);
+        const e = bigi.fromBuffer(buf_sha256);
         while (true) {
           ecsignature = _sign(curve, buf_sha256, private_key.d, nonce++);
           der = ecsignature.toDER();
@@ -92,7 +89,7 @@ class Signature {
             break;
           }
           if (nonce % 10 === 0) {
-            console.log("WARN: " + nonce + " attempts to find canonical signature");
+            console.log(`WARN: ${  nonce  } attempts to find canonical signature`);
           }
         }
         return new Signature(ecsignature.r, ecsignature.s, i);
@@ -109,12 +106,12 @@ class Signature {
         @return {boolean}
     */
     verifyBuffer(buf, public_key) {
-        var _hash = sha256(buf);
+        const _hash = sha256(buf);
         return this.verifyHash(_hash, public_key);
     };
 
     verifyHash(hash, public_key) {
-        equal(hash.length, 32, "A SHA 256 should be 32 bytes long, instead got " + hash.length);
+        equal(hash.length, 32, `A SHA 256 should be 32 bytes long, instead got ${  hash.length}`);
         return verify(curve, hash, {
           r: this.r,
           s: this.s
@@ -130,31 +127,29 @@ class Signature {
     // };
 
     static fromHex(hex) {
-        return Signature.fromBuffer(Buffer.from(hex, "hex"));
+        return Signature.fromBuffer(Buffer.from(hex, 'hex'));
     };
 
     toHex() {
-        return this.toBuffer().toString("hex");
+        return this.toBuffer().toString('hex');
     };
 
     static signHex(hex, private_key) {
-        var buf;
-        buf = Buffer.from(hex, 'hex');
+        const buf = Buffer.from(hex, 'hex');
         return Signature.signBuffer(buf, private_key);
     };
 
     verifyHex(hex, public_key) {
-        var buf;
-        buf = Buffer.from(hex, 'hex');
+        const buf = Buffer.from(hex, 'hex');
         return this.verifyBuffer(buf, public_key);
     };
 
     static verifyData(data, signature, public_key_str) {
-    	var data_buf = Buffer.from(data);
-        var data_buf_hex = Buffer.from(data_buf, 'hex');
-        var data_buf_hash = sha256(data_buf_hex);
-        equal(data_buf_hash.length, 32, "A SHA 256 should be 32 bytes long, instead got " + data_buf_hash.length);
-        var public_key=PublicKey.fromString(public_key_str);
+    	const data_buf = Buffer.from(data);
+        const data_buf_hex = Buffer.from(data_buf, 'hex');
+        const data_buf_hash = sha256(data_buf_hex);
+        equal(data_buf_hash.length, 32, `A SHA 256 should be 32 bytes long, instead got ${  data_buf_hash.length}`);
+        const public_key=PublicKey.fromString(public_key_str);
         return verify(curve, data_buf_hash, signature, public_key.Q);
     };
 

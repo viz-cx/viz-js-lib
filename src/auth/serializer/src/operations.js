@@ -12,13 +12,12 @@ sed 's/steemit_protocol_//g' > tmp.coffee
 // decaffeinate tmp.coffee
 // Merge tmp.js - See "Generated code follows" below
 
-import types from "./types.js";
-import SerializerImpl from "./serializer.js";
+import types from './types.js';
+import SerializerImpl from './serializer.js';
 
 // Named exports
 const {
     int16,
-    uint8,
     uint16,
     uint32,
     uint64,
@@ -33,8 +32,7 @@ const {
     public_key,
     time_point_sec,
     optional,
-    asset,
-    asset_16
+    asset
 } = types
 
 const future_extensions = types.void
@@ -52,7 +50,7 @@ const Serializer = function(operation_name, serilization_types_object) {
 };
 
 const beneficiaries = new Serializer(
-    "beneficiaries", {
+    'beneficiaries', {
         account: string,
         weight: uint16
     }
@@ -65,7 +63,7 @@ const content_payout_beneficiaries = new Serializer(
 );
 
 const transaction = new Serializer(
-    "transaction", {
+    'transaction', {
         ref_block_num: uint16,
         ref_block_prefix: uint32,
         expiration: time_point_sec,
@@ -75,7 +73,7 @@ const transaction = new Serializer(
 );
 
 const encrypted_memo = new Serializer(
-    "encrypted_memo", {
+    'encrypted_memo', {
         from: public_key,
         to: public_key,
         nonce: uint64,
@@ -108,7 +106,7 @@ With: map((string), (uint16))
 */
 
 const signed_transaction = new Serializer(
-    "signed_transaction", {
+    'signed_transaction', {
         ref_block_num: uint16,
         ref_block_prefix: uint32,
         expiration: time_point_sec,
@@ -119,7 +117,7 @@ const signed_transaction = new Serializer(
 );
 
 const signed_block = new Serializer(
-    "signed_block", {
+    'signed_block', {
         previous: bytes(20),
         timestamp: time_point_sec,
         witness: string,
@@ -135,7 +133,7 @@ const signed_block = new Serializer(
 );
 
 const block_header = new Serializer(
-    "block_header", {
+    'block_header', {
         previous: bytes(20),
         timestamp: time_point_sec,
         witness: string,
@@ -149,7 +147,7 @@ const block_header = new Serializer(
 );
 
 const signed_block_header = new Serializer(
-    "signed_block_header", {
+    'signed_block_header', {
         previous: bytes(20),
         timestamp: time_point_sec,
         witness: string,
@@ -164,7 +162,7 @@ const signed_block_header = new Serializer(
 );
 
 const vote = new Serializer(
-    "vote", {
+    'vote', {
         voter: string,
         author: string,
         permlink: string,
@@ -173,7 +171,7 @@ const vote = new Serializer(
 );
 
 const content = new Serializer(
-    "content", {
+    'content', {
         parent_author: string,
         parent_permlink: string,
         author: string,
@@ -189,7 +187,7 @@ const content = new Serializer(
 );
 
 const transfer = new Serializer(
-    "transfer", {
+    'transfer', {
         from: string,
         to: string,
         amount: asset,
@@ -198,7 +196,7 @@ const transfer = new Serializer(
 );
 
 const transfer_to_vesting = new Serializer(
-    "transfer_to_vesting", {
+    'transfer_to_vesting', {
         from: string,
         to: string,
         amount: asset
@@ -206,14 +204,14 @@ const transfer_to_vesting = new Serializer(
 );
 
 const withdraw_vesting = new Serializer(
-    "withdraw_vesting", {
+    'withdraw_vesting', {
         account: string,
         vesting_shares: asset
     }
 );
 
 const authority = new Serializer(
-    "authority", {
+    'authority', {
         weight_threshold: uint32,
         account_auths: map((string), (uint16)),
         key_auths: map((public_key), (uint16))
@@ -221,7 +219,7 @@ const authority = new Serializer(
 );
 
 const account_update = new Serializer(
-    "account_update", {
+    'account_update', {
         account: string,
         master: optional(authority),
         active: optional(authority),
@@ -232,7 +230,7 @@ const account_update = new Serializer(
 );
 
 const chain_properties_init = new Serializer(
-    "chain_properties_init", {
+    'chain_properties_init', {
         account_creation_fee: asset,
         maximum_block_size: uint32,
         create_account_delegation_ratio: uint32,
@@ -249,7 +247,7 @@ const chain_properties_init = new Serializer(
 );
 
 const witness_update = new Serializer(
-    "witness_update", {
+    'witness_update', {
         owner: string,
         url: string,
         block_signing_key: public_key
@@ -257,14 +255,14 @@ const witness_update = new Serializer(
 );
 
 const chain_properties_update = new Serializer(
-    "chain_properties_update", {
+    'chain_properties_update', {
         owner: string,
         props: chain_properties_init
     }
 );
 
 const account_witness_vote = new Serializer(
-    "account_witness_vote", {
+    'account_witness_vote', {
         account: string,
         witness: string,
         approve: bool
@@ -272,21 +270,21 @@ const account_witness_vote = new Serializer(
 );
 
 const account_witness_proxy = new Serializer(
-    "account_witness_proxy", {
+    'account_witness_proxy', {
         account: string,
         proxy: string
     }
 );
 
 const delete_content = new Serializer(
-    "delete_content", {
+    'delete_content', {
         author: string,
         permlink: string
     }
 );
 
 const custom = new Serializer(
-    "custom", {
+    'custom', {
         required_active_auths: set(string),
         required_regular_auths: set(string),
         id: string,
@@ -295,7 +293,7 @@ const custom = new Serializer(
 );
 
 const set_withdraw_vesting_route = new Serializer(
-    "set_withdraw_vesting_route", {
+    'set_withdraw_vesting_route', {
         from_account: string,
         to_account: string,
         percent: uint16,
@@ -304,7 +302,7 @@ const set_withdraw_vesting_route = new Serializer(
 );
 
 const request_account_recovery = new Serializer(
-    "request_account_recovery", {
+    'request_account_recovery', {
         recovery_account: string,
         account_to_recover: string,
         new_master_authority: authority,
@@ -313,7 +311,7 @@ const request_account_recovery = new Serializer(
 );
 
 const recover_account = new Serializer(
-    "recover_account", {
+    'recover_account', {
         account_to_recover: string,
         new_master_authority: authority,
         recent_master_authority: authority,
@@ -322,7 +320,7 @@ const recover_account = new Serializer(
 );
 
 const change_recovery_account = new Serializer(
-    "change_recovery_account", {
+    'change_recovery_account', {
         account_to_recover: string,
         new_recovery_account: string,
         extensions: set(future_extensions)
@@ -330,7 +328,7 @@ const change_recovery_account = new Serializer(
 );
 
 const escrow_transfer = new Serializer(
-    "escrow_transfer", {
+    'escrow_transfer', {
         from: string,
         to: string,
         token_amount: asset,
@@ -344,7 +342,7 @@ const escrow_transfer = new Serializer(
 );
 
 const escrow_dispute = new Serializer(
-    "escrow_dispute", {
+    'escrow_dispute', {
         from: string,
         to: string,
         agent: string,
@@ -354,7 +352,7 @@ const escrow_dispute = new Serializer(
 );
 
 const escrow_release = new Serializer(
-    "escrow_release", {
+    'escrow_release', {
         from: string,
         to: string,
         agent: string,
@@ -366,7 +364,7 @@ const escrow_release = new Serializer(
 );
 
 const escrow_approve = new Serializer(
-    "escrow_approve", {
+    'escrow_approve', {
         from: string,
         to: string,
         agent: string,
@@ -377,7 +375,7 @@ const escrow_approve = new Serializer(
 );
 
 const delegate_vesting_shares = new Serializer(
-    "delegate_vesting_shares", {
+    'delegate_vesting_shares', {
         delegator: string,
         delegatee: string,
         vesting_shares: asset
@@ -385,7 +383,7 @@ const delegate_vesting_shares = new Serializer(
 );
 
 const account_create = new Serializer(
-    "account_create", {
+    'account_create', {
         fee: asset,
         delegation: asset,
         creator: string,
@@ -401,20 +399,20 @@ const account_create = new Serializer(
 );
 
 const account_metadata = new Serializer(
-    "account_metadata", {
+    'account_metadata', {
         account: string,
         json_metadata: string
     }
 );
 
 const operation_wrapper = new Serializer(
-    "operation_wrapper", {
+    'operation_wrapper', {
         op: operation
     }
 );
 
 const proposal_create = new Serializer(
-    "proposal_create", {
+    'proposal_create', {
         author: string,
         title: string,
         memo: string,
@@ -426,7 +424,7 @@ const proposal_create = new Serializer(
 );
 
 const proposal_update = new Serializer(
-    "proposal_update", {
+    'proposal_update', {
         author: string,
         title: string,
         active_approvals_to_add: set(string),
@@ -442,7 +440,7 @@ const proposal_update = new Serializer(
 );
 
 const proposal_delete = new Serializer(
-    "proposal_delete", {
+    'proposal_delete', {
         author: string,
         title: string,
         requester: string,
@@ -451,7 +449,7 @@ const proposal_delete = new Serializer(
 );
 
 const author_reward = new Serializer(
-    "author_reward", {
+    'author_reward', {
         author: string,
         permlink: string,
         payout: asset,
@@ -460,7 +458,7 @@ const author_reward = new Serializer(
 );
 
 const curation_reward = new Serializer(
-    "curation_reward", {
+    'curation_reward', {
         curator: string,
         reward: asset,
         content_author: string,
@@ -469,7 +467,7 @@ const curation_reward = new Serializer(
 );
 
 const content_reward = new Serializer(
-    "content_reward", {
+    'content_reward', {
         author: string,
         permlink: string,
         payout: asset
@@ -477,7 +475,7 @@ const content_reward = new Serializer(
 );
 
 const fill_vesting_withdraw = new Serializer(
-    "fill_vesting_withdraw", {
+    'fill_vesting_withdraw', {
         from_account: string,
         to_account: string,
         withdrawn: asset,
@@ -486,26 +484,26 @@ const fill_vesting_withdraw = new Serializer(
 );
 
 const shutdown_witness = new Serializer(
-    "shutdown_witness", {
+    'shutdown_witness', {
         owner: string
     }
 );
 
 const hardfork = new Serializer(
-    "hardfork", {
+    'hardfork', {
         hardfork_id: uint32
     }
 );
 
 const content_payout_update = new Serializer(
-    "content_payout_update", {
+    'content_payout_update', {
         author: string,
         permlink: string
     }
 );
 
 const content_benefactor_reward = new Serializer(
-    "content_benefactor_reward", {
+    'content_benefactor_reward', {
         benefactor: string,
         author: string,
         permlink: string,
@@ -514,14 +512,14 @@ const content_benefactor_reward = new Serializer(
 );
 
 const return_vesting_delegation = new Serializer(
-    "return_vesting_delegation", {
+    'return_vesting_delegation', {
         account: string,
         vesting_shares: asset
     }
 );
 
 const committee_worker_create_request = new Serializer(
-    "committee_worker_create_request", {
+    'committee_worker_create_request', {
         creator: string,
         url: string,
         worker: string,
@@ -532,14 +530,14 @@ const committee_worker_create_request = new Serializer(
 );
 
 const committee_worker_cancel_request = new Serializer(
-    "committee_worker_cancel_request", {
+    'committee_worker_cancel_request', {
         creator: string,
         request_id: uint32
     }
 );
 
 const committee_vote_request = new Serializer(
-    "committee_vote_request", {
+    'committee_vote_request', {
         voter: string,
         request_id: uint32,
         vote_percent: int16
@@ -547,19 +545,19 @@ const committee_vote_request = new Serializer(
 );
 
 const committee_cancel_request = new Serializer(
-    "committee_cancel_request", {
+    'committee_cancel_request', {
         request_id: uint32
     }
 );
 
 const committee_approve_request = new Serializer(
-    "committee_approve_request", {
+    'committee_approve_request', {
         request_id: uint32
     }
 );
 
 const committee_pay_request = new Serializer(
-    "committee_pay_request", {
+    'committee_pay_request', {
         worker: string,
         request_id: uint32,
         tokens: asset
@@ -567,20 +565,20 @@ const committee_pay_request = new Serializer(
 );
 
 const committee_payout_request = new Serializer(
-    "committee_payout_request", {
+    'committee_payout_request', {
         request_id: uint32
     }
 );
 
 const witness_reward = new Serializer(
-    "witness_reward", {
+    'witness_reward', {
         witness: string,
         shares: asset
     }
 );
 
 const create_invite = new Serializer(
-    "create_invite", {
+    'create_invite', {
         creator: string,
         balance: asset,
         invite_key: public_key
@@ -588,7 +586,7 @@ const create_invite = new Serializer(
 );
 
 const claim_invite_balance = new Serializer(
-    "claim_invite_balance", {
+    'claim_invite_balance', {
         initiator: string,
         receiver: string,
         invite_secret: string
@@ -596,7 +594,7 @@ const claim_invite_balance = new Serializer(
 );
 
 const invite_registration = new Serializer(
-    "invite_registration", {
+    'invite_registration', {
         initiator: string,
         new_account_name: string,
         invite_secret: string,
@@ -604,7 +602,7 @@ const invite_registration = new Serializer(
     }
 );
 
-const award = new Serializer("award", {
+const award = new Serializer('award', {
     initiator: string,
     receiver: string,
     energy: uint16,
@@ -613,7 +611,7 @@ const award = new Serializer("award", {
     beneficiaries: set(beneficiaries)
 });
 
-const fixed_award = new Serializer("fixed_award", {
+const fixed_award = new Serializer('fixed_award', {
     initiator: string,
     receiver: string,
     reward_amount: asset,
@@ -697,7 +695,7 @@ const chain_properties_hf9 = new Serializer(
 );
 
 const versioned_chain_properties_update = new Serializer(
-    "versioned_chain_properties_update", {
+    'versioned_chain_properties_update', {
         owner: string,
         props: static_variant([
             chain_properties_init,
@@ -709,7 +707,7 @@ const versioned_chain_properties_update = new Serializer(
 );
 
 const receive_award = new Serializer(
-    "receive_award", {
+    'receive_award', {
         receiver: string,
         custom_sequence: uint64,
         memo: string,
@@ -718,7 +716,7 @@ const receive_award = new Serializer(
 );
 
 const benefactor_award = new Serializer(
-    "benefactor_award", {
+    'benefactor_award', {
         benefactor: string,
         receiver: string,
         custom_sequence: uint64,
@@ -727,7 +725,7 @@ const benefactor_award = new Serializer(
     }
 );
 
-const set_paid_subscription = new Serializer("set_paid_subscription", {
+const set_paid_subscription = new Serializer('set_paid_subscription', {
     account: string,
     url: string,
     levels: uint16,
@@ -735,7 +733,7 @@ const set_paid_subscription = new Serializer("set_paid_subscription", {
     period: uint16
 });
 
-const paid_subscribe = new Serializer("paid_subscribe", {
+const paid_subscribe = new Serializer('paid_subscribe', {
     subscriber: string,
     account: string,
     level: uint16,
@@ -744,7 +742,7 @@ const paid_subscribe = new Serializer("paid_subscribe", {
     auto_renewal: bool
 });
 
-const paid_subscription_action = new Serializer("paid_subscription_action", {
+const paid_subscription_action = new Serializer('paid_subscription_action', {
     subscriber: string,
     account: string,
     level: uint16,
@@ -754,13 +752,13 @@ const paid_subscription_action = new Serializer("paid_subscription_action", {
     summary_amount: asset
 });
 
-const cancel_paid_subscription = new Serializer("cancel_paid_subscription", {
+const cancel_paid_subscription = new Serializer('cancel_paid_subscription', {
     subscriber: string,
     account: string
 });
 
 const set_account_price = new Serializer(
-    "set_account_price", {
+    'set_account_price', {
         account: string,
         account_seller: string,
         account_offer_price: asset,
@@ -769,7 +767,7 @@ const set_account_price = new Serializer(
 );
 
 const target_account_sale = new Serializer(
-    "target_account_sale", {
+    'target_account_sale', {
         account: string,
         account_seller: string,
         target_buyer: string,
@@ -779,7 +777,7 @@ const target_account_sale = new Serializer(
 );
 
 const set_subaccount_price = new Serializer(
-    "set_subaccount_price", {
+    'set_subaccount_price', {
         account: string,
         subaccount_seller: string,
         subaccount_offer_price: asset,
@@ -788,7 +786,7 @@ const set_subaccount_price = new Serializer(
 );
 
 const buy_account = new Serializer(
-    "buy_account", {
+    'buy_account', {
         buyer: string,
         account: string,
         account_offer_price: asset,
@@ -798,7 +796,7 @@ const buy_account = new Serializer(
 );
 
 const account_sale = new Serializer(
-    "account_sale", {
+    'account_sale', {
         account: string,
         price: asset,
         buyer: string,
@@ -807,7 +805,7 @@ const account_sale = new Serializer(
 );
 
 const use_invite_balance = new Serializer(
-    "use_invite_balance", {
+    'use_invite_balance', {
         initiator: string,
         receiver: string,
         invite_secret: string
@@ -815,7 +813,7 @@ const use_invite_balance = new Serializer(
 );
 
 const expire_escrow_ratification = new Serializer(
-    "expire_escrow_ratification", {
+    'expire_escrow_ratification', {
         from: string,
         to: string,
         agent: string,
@@ -827,7 +825,7 @@ const expire_escrow_ratification = new Serializer(
 );
 
 const bid = new Serializer(
-    "bid", {
+    'bid', {
         account: string,
         bidder: string,
         bid: asset
@@ -835,7 +833,7 @@ const bid = new Serializer(
 );
 
 const outbid = new Serializer(
-    "outbid", {
+    'outbid', {
         account: string,
         bidder: string,
         bid: asset

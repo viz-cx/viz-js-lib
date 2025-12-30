@@ -9,16 +9,15 @@ const debug = newDebug('steem:ws');
 let WebSocket;
 async function getWebSocket() {
     if (WebSocket) return WebSocket;
-
     if (isNode) {
-        const ws = await import('ws');
-        WebSocket = ws.default;
+        const { default: ws } = await import('ws');
+        WebSocket = ws;
     } else if (typeof window !== 'undefined') {
-        WebSocket = window.WebSocket;
+        const { WebSocket: WS } = window;
+        WebSocket = WS;
     } else {
         throw new Error("Couldn't decide on a `WebSocket` class");
     }
-
     return WebSocket;
 }
 
@@ -38,7 +37,7 @@ export default class WsTransport extends Transport {
         const WS = await getWebSocket();
 
         this.startPromise = new Promise((resolve, reject) => {
-            this.ws = new WS(config.get("websocket"));
+            this.ws = new WS(config.get('websocket'));
             this.ws.onerror = (err) => {
                 this.startPromise = null;
                 reject(err);
@@ -98,7 +97,7 @@ export default class WsTransport extends Transport {
     }
 
     onError(error) {
-        for (let _request of this._requests.values()) {
+        for (const _request of this._requests.values()) {
             _request.deferral.reject(error);
         }
         this.stop();
@@ -106,7 +105,7 @@ export default class WsTransport extends Transport {
 
     onClose() {
         const error = new Error('Connection was closed');
-        for (let _request of this._requests.values()) {
+        for (const _request of this._requests.values()) {
             _request.deferral.reject(error);
         }
         this._requests.clear();
@@ -123,8 +122,8 @@ export default class WsTransport extends Transport {
         const errorCause = message.error;
         if (errorCause) {
             const err = new Error(
-                (errorCause.message || 'Failed to complete operation') +
-                ' (see err.payload for the full error payload)'
+                `${errorCause.message || 'Failed to complete operation'
+                } (see err.payload for the full error payload)`
             );
             err.payload = message;
             _request.deferral.reject(err);

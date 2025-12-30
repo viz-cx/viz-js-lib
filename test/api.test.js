@@ -1,11 +1,11 @@
 import assert from 'assert';
 import makeStub from 'mocha-make-stub';
 import should from 'should';
-
 import viz, { VIZ } from '../src/api/index.js';
 import config from '../src/config.js';
 import testPost from './test-post.json' with { type: 'json' }
 
+// eslint-disable-next-line no-undef
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 describe('viz.api:', function () {
@@ -67,13 +67,13 @@ describe('viz.api:', function () {
 
   describe('reconnect on ws close', () => {
     const originalStart = VIZ.prototype.start;
-    makeStub(VIZ.prototype, 'start', function () {
-      return originalStart.apply(this, arguments);
+    makeStub(VIZ.prototype, 'start', function (...args) {
+      return originalStart.apply(this, ...args);
     });
 
     const originalStop = VIZ.prototype.stop;
-    makeStub(VIZ.prototype, 'stop', function () {
-      return originalStop.apply(this, arguments);
+    makeStub(VIZ.prototype, 'stop', function (...args) {
+      return originalStop.apply(this, args);
     });
 
     it('reconnects automatically', async () => {

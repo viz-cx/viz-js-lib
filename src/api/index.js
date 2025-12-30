@@ -31,12 +31,12 @@ class VIZ extends EventEmitter {
   }
 
   _setTransport(url) {
-      if (url && url.match('^((http|https)?:\/\/)')) {
+      if (url && url.match('^((http|https)?://)')) {
         this.transport = new transports.http();
-      } else if (url && url.match('^((ws|wss)?:\/\/)')) {
+      } else if (url && url.match('^((ws|wss)?://)')) {
         this.transport = new transports.ws();
       } else {
-      throw Error("unknown transport! [" + url + "]");
+      throw Error(`unknown transport! [${  url  }]`);
     }
   }
 
@@ -79,9 +79,8 @@ class VIZ extends EventEmitter {
     const errorCause = message.error;
     if (errorCause) {
       const err = new Error(
-
-        (errorCause.message || 'Failed to complete operation') +
-        ' (see err.payload for the full error payload)'
+        `${errorCause.message || 'Failed to complete operation'
+        } (see err.payload for the full error payload)`
       );
       err.payload = message;
       reject(err);
@@ -94,23 +93,23 @@ class VIZ extends EventEmitter {
     resolve(message.result);
   }
 
-  send(api, data, callback) {
+  send(api, data, callback, ...args) {
     if(!this.transport) {
         this.start();
     }
-    var cb = callback;
+    let cb = callback;
     if (this.__logger) {
-        let id = Math.random();
-        let self = this;
-        this.log('xmit:' + id + ':', data)
+        const id = Math.random();
+        const self = this;
+        this.log(`xmit:${  id  }:`, data)
         cb = function(e, d) {
             if (e) {
-                self.log('error', 'rsp:' + id + ':\n\n', e, d)
+                self.log('error', `rsp:${  id  }:\n\n`, e, d)
             } else {
-                self.log('rsp:' + id + ':', d)
+                self.log(`rsp:${  id  }:`, d)
             }
             if (callback) {
-                callback.apply(self, arguments)
+                callback.apply(self, args)
             }
         }
     }

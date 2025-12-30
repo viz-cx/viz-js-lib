@@ -34,7 +34,7 @@ function makePlugins(options) {
 
 function makeConfig(options = {}) {
   _.defaults(options, DEFAULTS);
-  const isDevelopment = options.isDevelopment;
+  const {isDevelopment} = options;
 
   return {
     mode: isDevelopment ? 'development' : 'production',

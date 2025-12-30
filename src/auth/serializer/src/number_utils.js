@@ -1,4 +1,4 @@
-import assert from "assert"
+import assert from 'assert'
 
 /**
     Convert 12.34 with a precision of 3 into 12340
@@ -9,45 +9,45 @@ import assert from "assert"
 */
 export function toImpliedDecimal(number, precision) {
 
-    if(typeof number === "number") {
-        assert(number <= 9007199254740991, "overflow")
-        number = ""+number;
+    if(typeof number === 'number') {
+        assert(number <= 9007199254740991, 'overflow')
+        number = `${number}`;
     } else
         if( number.toString )
             number = number.toString()
 
-    assert(typeof number === "string", "number should be an actual number or string: " + (typeof number))
+    assert(typeof number === 'string', `number should be an actual number or string: ${  typeof number}`)
     number = number.trim()
-    assert(/^[0-9]*\.?[0-9]*$/.test(number), "Invalid decimal number " + number)
+    assert(/^[0-9]*\.?[0-9]*$/.test(number), `Invalid decimal number ${  number}`)
 
-    let [ whole = "", decimal = ""] = number.split(".")
+    let [ whole = '', decimal = ''] = number.split('.')
 
-    let padding = precision - decimal.length
-    assert(padding >= 0, "Too many decimal digits in " + number + " to create an implied decimal of " + precision)
+    const padding = precision - decimal.length
+    assert(padding >= 0, `Too many decimal digits in ${  number  } to create an implied decimal of ${  precision}`)
 
     for(let i = 0; i < padding; i++)
-        decimal += "0"
+        decimal += '0'
 
-    while(whole.charAt(0) === "0")
+    while(whole.charAt(0) === '0')
         whole = whole.substring(1)
 
     return whole + decimal
 }
 
 export function fromImpliedDecimal(number, precision) {
-    if(typeof number === "number") {
-        assert(number <= 9007199254740991, "overflow")
-        number = ""+number;
+    if(typeof number === 'number') {
+        assert(number <= 9007199254740991, 'overflow')
+        number = `${number}`;
     } else
         if( number.toString )
             number = number.toString()
 
     while(number.length < precision + 1)// 0.123
-        number = "0" + number
+        number = `0${  number}`
 
     // 44000 => 44.000
-    let dec_string = number.substring(number.length - precision)
+    const dec_string = number.substring(number.length - precision)
     return number.substring(0, number.length - precision) +
-        (dec_string ? "." + dec_string : "")
+        (dec_string ? `.${  dec_string}` : '')
 
 }

@@ -6,7 +6,7 @@ import PublicKey from './key_public.js';
 import PrivateKey from './key_private.js';
 import { sha512, sha256 } from './hash.js';
 
-const Long = ByteBuffer.Long;
+const {Long} = ByteBuffer;
 
 /**
     Spec: https://steemit.com/steem/@dantheman/how-to-encrypt-a-memo-when-transferring-steem
@@ -106,12 +106,13 @@ function crypt(private_key, public_key, nonce, message, checksum) {
     @return {string} utf8
 */
 export function simpleDecoder(data,passphrase){
-    let buff=new Buffer(data, 'base64');
-    let passphrase_sha512=sha512(passphrase);
-    let key = passphrase_sha512.slice(0, 32);
-    let iv = passphrase_sha512.slice(32, 48);
-    let decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-    let message = Buffer.concat([decipher.update(buff), decipher.final()]);
+    const buff=new Buffer(data, 'base64');
+    const passphrase_sha512=sha512(passphrase);
+    const key = passphrase_sha512.slice(0, 32);
+    const iv = passphrase_sha512.slice(32, 48);
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    const message = Buffer.concat([decipher.update(buff), decipher.final()]);
+    // eslint-disable-next-line no-undef
     return new TextDecoder('utf-8', { fatal: true }).decode(message);
 }
 
@@ -121,12 +122,12 @@ export function simpleDecoder(data,passphrase){
     @return {string} base64
 */
 export function simpleEncoder(data,passphrase){
-    let passphrase_sha512=sha512(passphrase);
-    let key = passphrase_sha512.slice(0, 32);
-    let iv = passphrase_sha512.slice(32, 48);
-    let buff=new Buffer(data,'utf-8');
-    let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    let encrypted = Buffer.concat([cipher.update(buff), cipher.final()]);
+    const passphrase_sha512=sha512(passphrase);
+    const key = passphrase_sha512.slice(0, 32);
+    const iv = passphrase_sha512.slice(32, 48);
+    const buff=new Buffer(data,'utf-8');
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    const encrypted = Buffer.concat([cipher.update(buff), cipher.final()]);
     return encrypted.toString('base64');
 }
 
@@ -135,7 +136,7 @@ export function simpleEncoder(data,passphrase){
     @return {Buffer}
 */
 function cryptoJsDecrypt(message, key, iv) {
-    assert(message, "Missing cipher text")
+    assert(message, 'Missing cipher text')
     message = toBinaryBuffer(message)
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv)
     // decipher.setAutoPadding(true)
@@ -148,7 +149,7 @@ function cryptoJsDecrypt(message, key, iv) {
     @return {Buffer} binary
 */
 function cryptoJsEncrypt(message, key, iv) {
-    assert(message, "Missing plain text")
+    assert(message, 'Missing plain text')
     message = toBinaryBuffer(message)
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv)
     // cipher.setAutoPadding(true)

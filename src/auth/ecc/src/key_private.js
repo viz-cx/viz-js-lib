@@ -1,14 +1,13 @@
 import { Point as _Point, getCurveByName } from 'ecurve';
-var Point = _Point;
-var secp256k1 = getCurveByName('secp256k1');
+const Point = _Point;
+const secp256k1 = getCurveByName('secp256k1');
 import bigi from 'bigi';
 import bs58 from 'bs58';
 import { equal } from 'assert';
 import { sha256, sha512 } from './hash.js';
 import PublicKey from './key_public.js';
 
-var G = secp256k1.G
-var n = secp256k1.n
+const {n} = secp256k1
 
 class PrivateKey {
 
@@ -20,13 +19,13 @@ class PrivateKey {
 
     static fromBuffer(buf) {
         if (!Buffer.isBuffer(buf)) {
-            throw new Error("Expecting paramter to be a Buffer type");
+            throw new Error('Expecting paramter to be a Buffer type');
         }
         if (32 !== buf.length) {
             console.log(`WARN: Expecting 32 bytes, instead got ${buf.length}, stack trace:`, new Error().stack);
         }
         if (buf.length === 0) {
-            throw new Error("Empty buffer");
+            throw new Error('Empty buffer');
         }
         return new PrivateKey(bigi.fromBuffer(buf));
     }
@@ -43,7 +42,7 @@ class PrivateKey {
         try {
             this.fromWif(text)
             return true
-        } catch(e) {
+        } catch {
             return false
         }
     }
@@ -53,13 +52,13 @@ class PrivateKey {
         @return {string} Wallet Import Format (still a secret, Not encrypted)
     */
     static fromWif(_private_wif) {
-        var private_wif = new Buffer(bs58.decode(_private_wif));
-        var version = private_wif.readUInt8(0);
+        const private_wif = new Buffer(bs58.decode(_private_wif));
+        const version = private_wif.readUInt8(0);
         equal(0x80, version, `Expected version ${0x80}, instead got ${version}`);
         // checksum includes the version
-        var private_key = private_wif.slice(0, -4);
-        var checksum = private_wif.slice(-4);
-        var new_checksum = sha256(private_key);
+        let private_key = private_wif.slice(0, -4);
+        const checksum = private_wif.slice(-4);
+        let new_checksum = sha256(private_key);
         new_checksum = sha256(new_checksum);
         new_checksum = new_checksum.slice(0, 4);
         if (checksum.toString() !== new_checksum.toString())
@@ -70,13 +69,13 @@ class PrivateKey {
     }
 
     toWif() {
-        var private_key = this.toBuffer();
+        let private_key = this.toBuffer();
         // checksum includes the version
         private_key = Buffer.concat([new Buffer([0x80]), private_key]);
-        var checksum = sha256(private_key);
+        let checksum = sha256(private_key);
         checksum = sha256(checksum);
         checksum = checksum.slice(0, 4);
-        var private_wif = Buffer.concat([private_key, checksum]);
+        const private_wif = Buffer.concat([private_key, checksum]);
         return bs58.encode(private_wif);
     }
 
@@ -89,8 +88,7 @@ class PrivateKey {
         @return {Point}
     */
     toPublicKeyPoint() {
-        var Q;
-        return Q = secp256k1.G.multiply(this.d);
+        return secp256k1.G.multiply(this.d);
     }
 
     toPublic() {
@@ -105,15 +103,15 @@ class PrivateKey {
     /** ECIES */
     get_shared_secret(public_key) {
         public_key = toPublic(public_key)
-        let KB = public_key.toUncompressed().toBuffer()
-        let KBP = Point.fromAffine(
+        const KB = public_key.toUncompressed().toBuffer()
+        const KBP = Point.fromAffine(
             secp256k1,
             bigi.fromBuffer( KB.slice( 1,33 )), // x
             bigi.fromBuffer( KB.slice( 33,65 )) // y
         )
-        let r = this.toBuffer()
-        let P = KBP.multiply(bigi.fromBuffer(r))
-        let S = P.affineX.toBuffer({size: 32})
+        const r = this.toBuffer()
+        const P = KBP.multiply(bigi.fromBuffer(r))
+        const S = P.affineX.toBuffer({size: 32})
         // SHA512 used in ECIES
         return sha512(S)
     }
@@ -131,15 +129,15 @@ class PrivateKey {
     child( offset ) {
         offset = Buffer.concat([ this.toPublicKey().toBuffer(), offset ])
         offset = sha256( offset )
-        let c = bigi.fromBuffer(offset)
+        const c = bigi.fromBuffer(offset)
 
         if (c.compareTo(n) >= 0)
-            throw new Error("Child offset went out of bounds, try again")
+            throw new Error('Child offset went out of bounds, try again')
 
-        let derived = this.d.add(c)//.mod(n)
+        const derived = this.d.add(c)//.mod(n)
 
         if( derived.signum() === 0 )
-            throw new Error("Child offset derived to an invalid key, try again")
+            throw new Error('Child offset derived to an invalid key, try again')
 
         return new PrivateKey( derived )
     }
