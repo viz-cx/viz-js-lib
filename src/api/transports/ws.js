@@ -65,35 +65,34 @@ export default class WsTransport extends Transport {
         }
     }
 
-    send(api, data, callback) {
-        debug('Steem::send', api, data);
-        return this.start().then(() => {
-            const deferral = {};
-            new Promise((resolve, reject) => {
-                deferral.resolve = (val) => {
-                    resolve(val);
-                    callback(null, val);
-                };
-                deferral.reject = (val) => {
-                    reject(val);
-                    callback(val);
-                };
-            });
-            const _request = {
-                deferral,
-                startedAt: Date.now(),
-                message: {
-                    id: data.id || this.id++,
-                    method: 'call',
-                    jsonrpc: '2.0',
-                    params: [api, data.method, data.params]
-                }
+    async send(api, data, callback) {
+        debug('VIZ::send', api, data);
+        await this.start();
+        const deferral = {};
+        new Promise((resolve, reject) => {
+            deferral.resolve = (val) => {
+                resolve(val);
+                callback(null, val);
             };
-            this.inFlight++;
-            this._requests.set(_request.message.id, _request);
-            this.ws.send(JSON.stringify(_request.message));
-            return deferral;
+            deferral.reject = (val_1) => {
+                reject(val_1);
+                callback(val_1);
+            };
         });
+        const _request = {
+            deferral,
+            startedAt: Date.now(),
+            message: {
+                id: data.id || this.id++,
+                method: 'call',
+                jsonrpc: '2.0',
+                params: [api, data.method, data.params]
+            }
+        };
+        this.inFlight++;
+        this._requests.set(_request.message.id, _request);
+        this.ws.send(JSON.stringify(_request.message));
+        return deferral;
     }
 
     onError(error) {
@@ -113,7 +112,7 @@ export default class WsTransport extends Transport {
 
     onMessage(websocketMessage) {
         const message = JSON.parse(websocketMessage.data);
-        debug('-- Steem.onMessage -->', message.id);
+        debug('-- VIZ.onMessage -->', message.id);
         if (!this._requests.has(message.id)) {
             throw new Error(`Panic: no request in queue for message id ${message.id}`);
         }

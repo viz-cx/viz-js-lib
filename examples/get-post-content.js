@@ -1,4 +1,4 @@
-const viz = require('../lib');
+import { api } from '../lib';
 
-const resultP = viz.api.getContentAsync('pal', '2scmtp-test');
+const resultP = api.getContentAsync('pal', '2scmtp-test');
 resultP.then(result => console.log(result));

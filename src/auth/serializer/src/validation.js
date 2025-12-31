@@ -15,7 +15,7 @@ const MIN_SAFE_INT =-9007199254740991;
 
     Validations support a string format for dealing with large numbers.
 */
-export default {
+export default _my = {
 
     is_empty: is_empty=function(value){
         return value === null || value === undefined;

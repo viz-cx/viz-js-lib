@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Binary serialization and deserialization library",
   "main": "index.js",
+  "type": "module",
   "config": {
     "hex_dump": false
   },

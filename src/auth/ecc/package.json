@@ -4,6 +4,7 @@
   "description": "Elliptic curve cryptography functions",
   "keywords": "ECC, Private Key, Public Key, Cryptographic Signature, AES, Encryption, Decryption",
   "main": "index.js",
+  "type": "module",
   "config": {
     "address_prefix": "VIZ"
   },

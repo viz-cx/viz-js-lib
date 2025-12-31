@@ -3,7 +3,7 @@ import newDebug from 'debug';
 import Transport from './base.js';
 import config from '../../config.js';
 
-const debug = newDebug('steem:http');
+const debug = newDebug('VIZ:http');
 
 class RPCError extends Error {
   constructor(rpcError) {
@@ -42,7 +42,7 @@ export function jsonRpc(uri, {method, id, params}) {
 
 export default class HttpTransport extends Transport {
   send(api, data, callback) {
-    debug('Steem::send', api, data);
+    debug('VIZ::send', api, data);
     const id = data.id || this.id++;
     const params = [api, data.method, data.params];
     const url = config.get('websocket');

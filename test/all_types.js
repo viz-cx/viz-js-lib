@@ -106,8 +106,8 @@ describe('viz.types', ()=> {
     })
 
     // keep last
-    it('visual check', ()=> {
-        console.log(toObject(fromObject(allTypes)))
-    })
+    // it('visual check', ()=> {
+    //     console.log(toObject(fromObject(allTypes)))
+    // })
 
 })

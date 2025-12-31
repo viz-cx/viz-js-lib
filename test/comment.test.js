@@ -1,4 +1,4 @@
-import Promise from 'bluebird';
+// import Promise from 'bluebird';
 import viz from '../src/api/index.js';
 import pkg from '../package.json' with { type: 'json' };
 import process from 'process';
@@ -12,9 +12,9 @@ const postingWif = password
 describe('viz.broadcast:', () => {
 
   describe('content with beneficiaries', () => {
-    before(() => {
-      return Promise.delay(2000);
-    });
+    // before(() => {
+    //   return Promise.delay(2000);
+    // });
 
     it('works', async () => {
       const permlink = viz.formatter.contentPermlink('pal', '2scmtp-test');

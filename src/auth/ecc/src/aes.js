@@ -179,3 +179,16 @@ const toPrivateObj = o => (o ? o.d ? o : PrivateKey.fromWif(o) : o/*null or unde
 const toPublicObj = o => (o ? o.Q ? o : PublicKey.fromString(o) : o/*null or undefined*/)
 const toLongObj = o => (o ? Long.isLong(o) ? o : Long.fromString(o) : o)
 const toBinaryBuffer = o => (o ? Buffer.isBuffer(o) ? o : new Buffer(o, 'binary') : o)
+
+
+export default {
+    encrypt,
+    decrypt,
+    simpleEncoder,
+    simpleDecoder,
+    uniqueNonce,
+    toPrivateObj,
+    toPublicObj,
+    toLongObj,
+    toBinaryBuffer
+}

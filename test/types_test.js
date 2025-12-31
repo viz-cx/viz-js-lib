@@ -4,8 +4,8 @@ import assert from 'assert';
 const { equal, deepEqual } = assert;
 import Types from '../src/auth/serializer/src/types.js';
 const { vote_id, set: _set, bool, string, map: _map, public_key, uint16, protocol_id_type } = Types;
-import pre from '../src/auth/serializer/src/precision.js';
-const { _internal, to_bigint64, to_string64 } = pre;
+import pre, { _internal } from '../src/auth/serializer/src/precision.js';
+const { to_bigint64, to_string64 } = pre;
 import { error } from './test_helper.js';
 
 describe('viz.auth: types', () => {
@@ -52,13 +52,13 @@ describe('viz.auth: types', () => {
     it('public_key sort', () => {
         const mapType = _map(public_key, uint16)
         const map = mapType.fromObject([//not sorted
-            ['VIZ56ankGHKf6qUsQe7vPsXTSEqST6Dt1ff73aV3YQbedzRua8NLQ',0],
             ['VIZ8me6d9PqzTgcoHxx6b4rnvWVTqz11kafidRAZwfacJkcJtfd75',0],
+            ['VIZ56ankGHKf6qUsQe7vPsXTSEqST6Dt1ff73aV3YQbedzRua8NLQ',0],
         ])
         const mapObject = mapType.toObject(map)
         deepEqual(mapObject, [ // sorted (uppercase comes first)
-            ['VIZ8me6d9PqzTgcoHxx6b4rnvWVTqz11kafidRAZwfacJkcJtfd75',0],
             ['VIZ56ankGHKf6qUsQe7vPsXTSEqST6Dt1ff73aV3YQbedzRua8NLQ',0],
+            ['VIZ8me6d9PqzTgcoHxx6b4rnvWVTqz11kafidRAZwfacJkcJtfd75',0],
         ])
     })
 

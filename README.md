@@ -3,11 +3,6 @@ viz.js the JavaScript Library with API Support for VIZ blockchain
 
 [![npm version](https://badge.fury.io/js/viz-js-lib.svg)](https://badge.fury.io/js/viz-js-lib)
 
-# Documentation
-
-Here is full documentation:
-https://github.com/VIZ-Blockchain/viz-js-lib/tree/master/doc
-
 # Install
 ```
 $ npm install viz-js-lib --save
@@ -23,8 +18,40 @@ viz.api.getAccounts(['ned', 'dan'], function(err, response){
 });
 </script>
 ```
-## Build
 
+## Server
+
+## WebSockets and HTTP transport
+Library support 2 transport types: ws, wss for websocket and http, https for pure HTTP JSONRPC.
+Examples:
+```js
+viz.config.set('websocket','wss://node.viz.cx/');
+viz.config.set('websocket','https://api.viz.world/');
+```
+
+## Examples
+### Broadcast Vote
+```js
+import viz from 'viz-js-lib';//nodejs lib
+
+const wif = viz.auth.toWif(username, password, 'regular');
+viz.broadcast.vote(wif, voter, author, permlink, weight, function(err, result) {
+	console.log(err, result);
+});
+```
+
+### Get Accounts
+```js
+viz.api.getAccounts(['ned', 'dan'], function(err, result) {
+	console.log(err, result);
+});
+```
+
+# Documentation
+Here is full documentation:
+https://github.com/VIZ-Blockchain/viz-js-lib/tree/master/doc
+
+## Build
 ```
 apt-get install -y webpack
 apt-get install -y npm
@@ -40,34 +67,6 @@ cd viz-js-lib/
 npm install
 npm run build-browser
 ls dist
-```
-
-## Server
-
-## WebSockets and HTTP transport
-Library support 2 transport types: ws, wss for websocket and http, https for pure HTTP JSONRPC.
-Examples:
-```js
-viz.config.set('websocket','wss://viz.lexai.host/');
-viz.config.set('websocket','https://rpc.viz.lexai.host/');
-```
-
-## Examples
-### Broadcast Vote
-```js
-var viz = require('viz-js-lib');//nodejs lib
-
-var wif = viz.auth.toWif(username, password, 'regular');
-viz.broadcast.vote(wif, voter, author, permlink, weight, function(err, result) {
-	console.log(err, result);
-});
-```
-
-### Get Accounts
-```js
-viz.api.getAccounts(['ned', 'dan'], function(err, result) {
-	console.log(err, result);
-});
 ```
 
 ## Contributions

@@ -5,9 +5,7 @@ import bs58 from 'bs58'
 import { encrypt, decrypt } from './ecc/src/aes.js'
 import PrivateKey from './ecc/src/key_private.js'
 import PublicKey from './ecc/src/key_public.js'
-import { operation } from './serializer/index.js';
-
-const encMemo = operation.encrypted_memo
+import { encrypted_memo } from './serializer/src/operations.js';
 
 /**
     Some fields are only required if the memo is marked for decryption (starts with a hash).
@@ -27,7 +25,7 @@ export function decode(private_key, memo) {
     private_key = toPrivateObj(private_key)
 
     memo = bs58.decode(memo)
-    memo = encMemo.fromBuffer(new Buffer(memo, 'binary'))
+    memo = encrypted_memo.fromBuffer(new Buffer(memo, 'binary'))
 
     const {from, to, nonce, check, encrypted} = memo
     const pubkey = private_key.toPublicKey().toString()
@@ -73,7 +71,7 @@ export function encode(private_key, public_key, memo, testNonce) {
     memo = new Buffer(mbuf.copy(0, mbuf.offset).toBinary(), 'binary')
 
     const {nonce, message, checksum} = encrypt(private_key, public_key, memo, testNonce)
-    memo = encMemo.fromObject({
+    memo = encrypted_memo.fromObject({
         from: private_key.toPublicKey(),
         to: public_key,
         nonce,
@@ -81,7 +79,7 @@ export function encode(private_key, public_key, memo, testNonce) {
         encrypted: message
     })
     // serialize
-    memo = encMemo.toBuffer(memo)
+    memo = encrypted_memo.toBuffer(memo)
     return `#${  bs58.encode(new Buffer(memo, 'binary'))}`
 }
 

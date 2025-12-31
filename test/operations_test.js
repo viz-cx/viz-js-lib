@@ -20,6 +20,6 @@ function template(op) {
     assert(op.toObject({}, {use_default: true, annotate: true}))
 
     // sample json
-    const obj = op.toObject({}, {use_default: true, annotate: false})
-    console.log(' ', op.operation_name, '\t', JSON.stringify(obj), '\n')
+    // const obj = op.toObject({}, {use_default: true, annotate: false})
+    // console.log(' ', op.operation_name, '\t', JSON.stringify(obj), '\n')
 }

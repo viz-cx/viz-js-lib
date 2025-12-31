@@ -6,7 +6,9 @@ import newDebug from 'debug';
 import config from '../config.js';
 import methods from './methods.js';
 import { camelCase } from '../utils.js';
-import transports from './transports/index.js';
+import ws from './transports/ws.js';
+import http from './transports/http.js';
+import formatter from '../formatter.js';
 
 const debugEmitters = newDebug('viz:emitters');
 const debugProtocol = newDebug('viz:protocol');
@@ -28,13 +30,17 @@ class VIZ extends EventEmitter {
     this.isOpen = false;
     this.releases = [];
     this.requests = {};
+    this.ws = ws;
+    this.http = http;
+    this.formatter = formatter;
+    this.config = config;
   }
 
   _setTransport(url) {
       if (url && url.match('^((http|https)?://)')) {
-        this.transport = new transports.http();
+        this.transport = new http();
       } else if (url && url.match('^((ws|wss)?://)')) {
-        this.transport = new transports.ws();
+        this.transport = new ws();
       } else {
       throw Error(`unknown transport! [${  url  }]`);
     }
@@ -261,7 +267,7 @@ methods.forEach((method) => {
 
 Promise.promisifyAll(VIZ.prototype);
 
-// Export singleton instance
-export { VIZ, DEFAULTS };
+export { ws, http, VIZ, DEFAULTS, formatter };
+
 const viz = new VIZ();
 export default viz;

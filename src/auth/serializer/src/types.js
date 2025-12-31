@@ -897,7 +897,7 @@ types.public_key = {
     },
     toObject(object, debug = {}){
         if (debug.use_default && object === undefined) {
-            return `${ecc_config.get('address_prefix')  }859gxfnXyUriMgUeThh1fWv3oqcpLFyHa3TfFYC4PK2HqhToVM`;
+            return `${ecc_config.get('address_prefix')}859gxfnXyUriMgUeThh1fWv3oqcpLFyHa3TfFYC4PK2HqhToVM`;
         }
         v.required(object);
         return object.toString()
@@ -926,7 +926,7 @@ types.address =
     },
     toObject(object, debug = {}){
         if (debug.use_default && object === undefined) {
-            return `${ecc_config.get('address_prefix')  }664KmHxSuQyDsfwo4WEJvWpzg1QKdg67S`;
+            return `${ecc_config.get('address_prefix')}664KmHxSuQyDsfwo4WEJvWpzg1QKdg67S`;
         }
         return types.address._to_address(object).toString();
     },
