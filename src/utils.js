@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import { simpleEncoder } from './auth/ecc/src/aes.js';
 import viz from './api/index.js';
 
@@ -58,56 +57,57 @@ export function voiceEvent(
   loop,
   callback
 ) {
-  loop = typeof loop === 'undefined' ? false : loop;
-  callback = typeof callback === 'undefined' ? function () {} : callback;
+  const loopValue = typeof loop === 'undefined' ? false : loop;
+  const callbackFn = typeof callback === 'undefined' ? function () {} : callback;
 
-  const use_previous = function (
-    wif,
-    account,
-    event_type,
-    target_account,
-    target_block,
-    data,
+  const executeBroadcast = function (
+    wifKey,
+    accountName,
+    eventType,
+    targetAccount,
+    targetBlock,
+    dataValue,
     previous,
-    callback
+    cb
   ) {
     const object = {
       p: previous,
-      e: event_type, //h - hide, e - edit, a - append
-      b: target_block, //block to hide, edit or append
+      e: eventType, //h - hide, e - edit, a - append
+      b: targetBlock, //block to hide, edit or append
     };
-    if (target_account !== account) {
-      object['a'] = target_account;
+    if (targetAccount !== accountName) {
+      object['a'] = targetAccount;
     }
-    if (typeof data !== 'undefined') {
-      object['d'] = data; //optional
+    if (typeof dataValue !== 'undefined') {
+      object['d'] = dataValue; //optional
     }
     viz.broadcast.custom(
-      wif,
+      wifKey,
       [],
-      [account],
+      [accountName],
       'VE',
       JSON.stringify(object),
       (err) => {
-        callback(!err);
+        cb(!err);
       }
     );
   };
-  if (false !== loop) {
-    use_previous(
+
+  if (false !== loopValue) {
+    executeBroadcast(
       wif,
       account,
       event_type,
       target_account,
       target_block,
       data,
-      loop,
-      callback
+      loopValue,
+      callbackFn
     );
   } else {
     viz.api.getAccount(account, 'VE', (err, result) => {
       if (!err) {
-        use_previous(
+        executeBroadcast(
           wif,
           account,
           event_type,
@@ -115,10 +115,10 @@ export function voiceEvent(
           target_block,
           data,
           result.custom_sequence_block_num,
-          callback
+          callbackFn
         );
       } else {
-        callback(false);
+        callbackFn(false);
       }
     });
   }
@@ -134,78 +134,79 @@ export function voiceText(
   loop,
   callback
 ) {
-  reply = typeof reply === 'undefined' ? false : reply;
-  share = typeof share === 'undefined' ? false : share;
-  beneficiaries = typeof beneficiaries === 'undefined' ? false : beneficiaries;
-  loop = typeof loop === 'undefined' ? false : loop;
-  callback = typeof callback === 'undefined' ? function () {} : callback;
+  const replyValue = typeof reply === 'undefined' ? false : reply;
+  const shareValue = typeof share === 'undefined' ? false : share;
+  const beneficiariesValue = typeof beneficiaries === 'undefined' ? false : beneficiaries;
+  const loopValue = typeof loop === 'undefined' ? false : loop;
+  const callbackFn = typeof callback === 'undefined' ? function () {} : callback;
 
-  const use_previous = function (
-    wif,
-    account,
-    text,
-    reply,
-    share,
-    beneficiaries,
+  const executeBroadcast = function (
+    wifKey,
+    accountName,
+    textContent,
+    replyTo,
+    shareRef,
+    beneficiariesList,
     previous,
-    callback
+    cb
   ) {
     const object = {
       p: previous,
       //'t':'t',//text as default type
       d: {
-        t: text,
+        t: textContent,
       },
     };
-    if (reply) {
-      object['d']['r'] = reply;
+    if (replyTo) {
+      object['d']['r'] = replyTo;
     } else {
       //share conflict with reply
-      if (share) {
-        object['d']['s'] = share;
+      if (shareRef) {
+        object['d']['s'] = shareRef;
       }
     }
-    if (beneficiaries) {
+    if (beneficiariesList) {
       //json example: [{"account":"committee","weight":1000}]
-      object['d']['b'] = beneficiaries;
+      object['d']['b'] = beneficiariesList;
     }
     viz.broadcast.custom(
-      wif,
+      wifKey,
       [],
-      [account],
+      [accountName],
       'V',
       JSON.stringify(object),
       (err) => {
-        callback(!err);
+        cb(!err);
       }
     );
   };
-  if (false !== loop) {
-    use_previous(
+
+  if (false !== loopValue) {
+    executeBroadcast(
       wif,
       account,
       text,
-      reply,
-      share,
-      beneficiaries,
-      loop,
-      callback
+      replyValue,
+      shareValue,
+      beneficiariesValue,
+      loopValue,
+      callbackFn
     );
   } else {
     viz.api.getAccount(account, 'V', (err, result) => {
       if (!err) {
-        use_previous(
+        executeBroadcast(
           wif,
           account,
           text,
-          reply,
-          share,
-          beneficiaries,
+          replyValue,
+          shareValue,
+          beneficiariesValue,
           result.custom_sequence_block_num,
-          callback
+          callbackFn
         );
       } else {
-        callback(false);
+        callbackFn(false);
       }
     });
   }
@@ -223,48 +224,47 @@ export function voiceEncodedText(
   loop,
   callback
 ) {
-  reply = typeof reply === 'undefined' ? false : reply;
-  share = typeof share === 'undefined' ? false : share;
-  beneficiaries = typeof beneficiaries === 'undefined' ? false : beneficiaries;
-  loop = typeof loop === 'undefined' ? false : loop;
-  callback = typeof callback === 'undefined' ? function () {} : callback;
+  const replyValue = typeof reply === 'undefined' ? false : reply;
+  const shareValue = typeof share === 'undefined' ? false : share;
+  const beneficiariesValue = typeof beneficiaries === 'undefined' ? false : beneficiaries;
+  const loopValue = typeof loop === 'undefined' ? false : loop;
+  const callbackFn = typeof callback === 'undefined' ? function () {} : callback;
 
-  const use_previous = function (
-    wif,
-    account,
-    passphrase,
-    comment,
-    text,
-    reply,
-    share,
-    beneficiaries,
+  const executeBroadcast = function (
+    wifKey,
+    accountName,
+    passphraseValue,
+    commentValue,
+    textContent,
+    replyTo,
+    shareRef,
+    beneficiariesList,
     previous,
-    callback
+    cb
   ) {
     const object = {
       d: {
-        t: text,
+        t: textContent,
       },
     };
-    if (reply) {
-      object['d']['r'] = reply;
+    if (replyTo) {
+      object['d']['r'] = replyTo;
     } else {
       //share conflict with reply
-      if (share) {
-        object['d']['s'] = share;
+      if (shareRef) {
+        object['d']['s'] = shareRef;
       }
     }
-    if (beneficiaries) {
+    if (beneficiariesList) {
       //json example: [{"account":"committee","weight":1000}]
-      object['d']['b'] = beneficiaries;
+      object['d']['b'] = beneficiariesList;
     }
-    if (typeof passphrase === 'object') {
+    if (typeof passphraseValue === 'object') {
       //reverse array (first item encode last for human readable envelope)
-      passphrase = passphrase.reverse();
-      if (typeof comment === 'object') {
-        comment = comment.reverse();
-      }
-      for (const i in passphrase) {
+      const passphraseArray = passphraseValue.reverse();
+      const commentArray = typeof commentValue === 'object' ? commentValue.reverse() : commentValue;
+
+      for (const i in passphraseArray) {
         const number = i;
         if (0 == number) {
           object['nt'] = 't'; //text
@@ -275,15 +275,15 @@ export function voiceEncodedText(
           'encode object',
           object,
           'with passphrase',
-          passphrase[number],
+          passphraseArray[number],
           'and comment',
-          comment[number]
+          commentArray[number]
         );
         object['d'] = JSON.stringify(object);
-        object['d'] = simpleEncoder(object['d'], passphrase[number]);
-        if (typeof comment === 'object') {
-          if (typeof comment[number] === 'string') {
-            object['c'] = comment[number];
+        object['d'] = simpleEncoder(object['d'], passphraseArray[number]);
+        if (typeof commentArray === 'object') {
+          if (typeof commentArray[number] === 'string') {
+            object['c'] = commentArray[number];
           }
         }
       }
@@ -292,54 +292,55 @@ export function voiceEncodedText(
       //nt - new type (not needed for default t/text)
       //object['d']['nt']=object['t'];//new type is text
       object['d'] = JSON.stringify(object);
-      object['d'] = simpleEncoder(object['d'], passphrase);
-      if (typeof comment !== 'undefined') {
-        object['c'] = comment;
+      object['d'] = simpleEncoder(object['d'], passphraseValue);
+      if (typeof commentValue !== 'undefined') {
+        object['c'] = commentValue;
       }
     }
     object['t'] = 'e'; //encoded
     object['p'] = previous;
     viz.broadcast.custom(
-      wif,
+      wifKey,
       [],
-      [account],
+      [accountName],
       'V',
       JSON.stringify(object),
       (err) => {
-        callback(!err);
+        cb(!err);
       }
     );
   };
-  if (false !== loop) {
-    use_previous(
+
+  if (false !== loopValue) {
+    executeBroadcast(
       wif,
       account,
       passphrase,
       comment,
       text,
-      reply,
-      share,
-      beneficiaries,
-      loop,
-      callback
+      replyValue,
+      shareValue,
+      beneficiariesValue,
+      loopValue,
+      callbackFn
     );
   } else {
     viz.api.getAccount(account, 'V', (err, result) => {
       if (!err) {
-        use_previous(
+        executeBroadcast(
           wif,
           account,
           passphrase,
           comment,
           text,
-          reply,
-          share,
-          beneficiaries,
+          replyValue,
+          shareValue,
+          beneficiariesValue,
           result.custom_sequence_block_num,
-          callback
+          callbackFn
         );
       } else {
-        callback(false);
+        callbackFn(false);
       }
     });
   }
@@ -358,96 +359,97 @@ export function voicePublication(
   loop,
   callback
 ) {
-  description = typeof description === 'undefined' ? false : description;
-  image = typeof image === 'undefined' ? false : image;
-  reply = typeof reply === 'undefined' ? false : reply;
-  share = typeof share === 'undefined' ? false : share;
-  beneficiaries = typeof beneficiaries === 'undefined' ? false : beneficiaries;
-  loop = typeof loop === 'undefined' ? false : loop;
-  callback = typeof callback === 'undefined' ? function () {} : callback;
+  const descriptionValue = typeof description === 'undefined' ? false : description;
+  const imageValue = typeof image === 'undefined' ? false : image;
+  const replyValue = typeof reply === 'undefined' ? false : reply;
+  const shareValue = typeof share === 'undefined' ? false : share;
+  const beneficiariesValue = typeof beneficiaries === 'undefined' ? false : beneficiaries;
+  const loopValue = typeof loop === 'undefined' ? false : loop;
+  const callbackFn = typeof callback === 'undefined' ? function () {} : callback;
 
-  const use_previous = function (
-    wif,
-    account,
-    title,
-    markdown,
-    description,
-    image,
-    reply,
-    share,
-    beneficiaries,
+  const executeBroadcast = function (
+    wifKey,
+    accountName,
+    titleText,
+    markdownContent,
+    descriptionText,
+    imageUrl,
+    replyTo,
+    shareRef,
+    beneficiariesList,
     previous,
-    callback
+    cb
   ) {
     const object = {
       p: previous,
       t: 'p', //publication
       d: {
-        t: title,
-        m: markdown,
+        t: titleText,
+        m: markdownContent,
       },
     };
-    if (description) {
-      object['d']['d'] = description;
+    if (descriptionText) {
+      object['d']['d'] = descriptionText;
     }
-    if (image) {
-      object['d']['i'] = image;
+    if (imageUrl) {
+      object['d']['i'] = imageUrl;
     }
-    if (reply) {
-      object['d']['r'] = reply;
+    if (replyTo) {
+      object['d']['r'] = replyTo;
     } else {
       //share conflict with reply
-      if (share) {
-        object['d']['s'] = share;
+      if (shareRef) {
+        object['d']['s'] = shareRef;
       }
     }
-    if (beneficiaries) {
+    if (beneficiariesList) {
       //json example: [{"account":"committee","weight":1000}]
-      object['d']['b'] = beneficiaries;
+      object['d']['b'] = beneficiariesList;
     }
     viz.broadcast.custom(
-      wif,
+      wifKey,
       [],
-      [account],
+      [accountName],
       'V',
       JSON.stringify(object),
       (err) => {
-        callback(!err);
+        cb(!err);
       }
     );
   };
-  if (false !== loop) {
-    use_previous(
+
+  if (false !== loopValue) {
+    executeBroadcast(
       wif,
       account,
       title,
       markdown,
-      description,
-      image,
-      reply,
-      share,
-      beneficiaries,
-      loop,
-      callback
+      descriptionValue,
+      imageValue,
+      replyValue,
+      shareValue,
+      beneficiariesValue,
+      loopValue,
+      callbackFn
     );
   } else {
     viz.api.getAccount(account, 'V', (err, result) => {
       if (!err) {
-        use_previous(
+        executeBroadcast(
           wif,
           account,
           title,
           markdown,
-          description,
-          image,
-          reply,
-          share,
-          beneficiaries,
+          descriptionValue,
+          imageValue,
+          replyValue,
+          shareValue,
+          beneficiariesValue,
           result.custom_sequence_block_num,
-          callback
+          callbackFn
         );
       } else {
-        callback(false);
+        callbackFn(false);
       }
     });
   }
@@ -468,61 +470,60 @@ export function voiceEncodedPublication(
   loop,
   callback
 ) {
-  description = typeof description === 'undefined' ? false : description;
-  image = typeof image === 'undefined' ? false : image;
-  reply = typeof reply === 'undefined' ? false : reply;
-  share = typeof share === 'undefined' ? false : share;
-  beneficiaries = typeof beneficiaries === 'undefined' ? false : beneficiaries;
-  loop = typeof loop === 'undefined' ? false : loop;
-  callback = typeof callback === 'undefined' ? function () {} : callback;
+  const descriptionValue = typeof description === 'undefined' ? false : description;
+  const imageValue = typeof image === 'undefined' ? false : image;
+  const replyValue = typeof reply === 'undefined' ? false : reply;
+  const shareValue = typeof share === 'undefined' ? false : share;
+  const beneficiariesValue = typeof beneficiaries === 'undefined' ? false : beneficiaries;
+  const loopValue = typeof loop === 'undefined' ? false : loop;
+  const callbackFn = typeof callback === 'undefined' ? function () {} : callback;
 
-  const use_previous = function (
-    wif,
-    account,
-    passphrase,
-    comment,
-    title,
-    markdown,
-    description,
-    image,
-    reply,
-    share,
-    beneficiaries,
+  const executeBroadcast = function (
+    wifKey,
+    accountName,
+    passphraseValue,
+    commentValue,
+    titleText,
+    markdownContent,
+    descriptionText,
+    imageUrl,
+    replyTo,
+    shareRef,
+    beneficiariesList,
     previous,
-    callback
+    cb
   ) {
     const object = {
       t: 'p', //publication
       d: {
-        t: title,
-        m: markdown,
+        t: titleText,
+        m: markdownContent,
       },
     };
-    if (description) {
-      object['d']['d'] = description;
+    if (descriptionText) {
+      object['d']['d'] = descriptionText;
     }
-    if (image) {
-      object['d']['i'] = image;
+    if (imageUrl) {
+      object['d']['i'] = imageUrl;
     }
-    if (reply) {
-      object['d']['r'] = reply;
+    if (replyTo) {
+      object['d']['r'] = replyTo;
     } else {
       //share conflict with reply
-      if (share) {
-        object['d']['s'] = share;
+      if (shareRef) {
+        object['d']['s'] = shareRef;
       }
     }
-    if (beneficiaries) {
+    if (beneficiariesList) {
       //json example: [{"account":"committee","weight":1000}]
-      object['d']['b'] = beneficiaries;
+      object['d']['b'] = beneficiariesList;
     }
-    if (typeof passphrase === 'object') {
+    if (typeof passphraseValue === 'object') {
       //reverse array (first item encode last for human readable envelope)
-      passphrase = passphrase.reverse();
-      if (typeof comment === 'object') {
-        comment = comment.reverse();
-      }
-      for (const i in passphrase) {
+      const passphraseArray = passphraseValue.reverse();
+      const commentArray = typeof commentValue === 'object' ? commentValue.reverse() : commentValue;
+
+      for (const i in passphraseArray) {
         const number = i;
         if (0 == number) {
           object['nt'] = 'p'; //publication
@@ -533,15 +534,15 @@ export function voiceEncodedPublication(
           'encode object',
           object,
           'with passphrase',
-          passphrase[number],
+          passphraseArray[number],
           'and comment',
-          comment[number]
+          commentArray[number]
         );
         object['d'] = JSON.stringify(object);
-        object['d'] = simpleEncoder(object['d'], passphrase[number]);
-        if (typeof comment === 'object') {
-          if (typeof comment[number] === 'string') {
-            object['c'] = comment[number];
+        object['d'] = simpleEncoder(object['d'], passphraseArray[number]);
+        if (typeof commentArray === 'object') {
+          if (typeof commentArray[number] === 'string') {
+            object['c'] = commentArray[number];
           }
         }
       }
@@ -549,61 +550,72 @@ export function voiceEncodedPublication(
     } else {
       object['d']['nt'] = object['t']; //new type
       object['d'] = JSON.stringify(object);
-      object['d'] = simpleEncoder(object['d'], passphrase);
-      if (typeof comment !== 'undefined') {
-        object['c'] = comment;
+      object['d'] = simpleEncoder(object['d'], passphraseValue);
+      if (typeof commentValue !== 'undefined') {
+        object['c'] = commentValue;
       }
     }
     object['t'] = 'e'; //encoded
     object['p'] = previous;
     viz.broadcast.custom(
-      wif,
+      wifKey,
       [],
-      [account],
+      [accountName],
       'V',
       JSON.stringify(object),
       (err) => {
-        callback(!err);
+        cb(!err);
       }
     );
   };
-  if (false !== loop) {
-    use_previous(
+
+  if (false !== loopValue) {
+    executeBroadcast(
       wif,
       account,
       passphrase,
       comment,
       title,
       markdown,
-      description,
-      image,
-      reply,
-      share,
-      beneficiaries,
-      loop,
-      callback
+      descriptionValue,
+      imageValue,
+      replyValue,
+      shareValue,
+      beneficiariesValue,
+      loopValue,
+      callbackFn
     );
   } else {
     viz.api.getAccount(account, 'V', (err, result) => {
       if (!err) {
-        use_previous(
+        executeBroadcast(
           wif,
           account,
           passphrase,
           comment,
           title,
           markdown,
-          description,
-          image,
-          reply,
-          share,
-          beneficiaries,
+          descriptionValue,
+          imageValue,
+          replyValue,
+          shareValue,
+          beneficiariesValue,
           result.custom_sequence_block_num,
-          callback
+          callbackFn
         );
       } else {
-        callback(false);
+        callbackFn(false);
       }
     });
   }
+}
+
+export default {
+  camelCase,
+  validateAccountName,
+  voiceEvent,
+  voiceText,
+  voiceEncodedText,
+  voicePublication,
+  voiceEncodedPublication
 }

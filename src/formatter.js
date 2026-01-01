@@ -32,9 +32,9 @@ export default VIZ_API => {
       }
     }
     await Promise.all(promises);
-      const balance = parseFloat(account.balance.split(' ')[0]);
-      const total_viz = vesting_viz + balance;
-      return total_viz.toFixed(3);
+    const balance = parseFloat(account.balance.split(' ')[0]);
+    const total_viz = vesting_viz + balance;
+    return total_viz.toFixed(3);
   }
 
   function createSuggestedPassword() {

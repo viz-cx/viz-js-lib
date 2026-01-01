@@ -7,21 +7,21 @@ import * as hash from './src/hash.js';
 import ecc_config from '../../config.js';
 
 export {
-    Address,
-    PrivateKey,
-    PublicKey,
-    Signature,
-    brainKey,
-    hash,
-    ecc_config
+  Address,
+  PrivateKey,
+  PublicKey,
+  Signature,
+  brainKey,
+  hash,
+  ecc_config
 };
 
 export default {
-    Address,
-    PrivateKey,
-    PublicKey,
-    Signature,
-    brainKey,
-    hash,
-    ecc_config
+  Address,
+  PrivateKey,
+  PublicKey,
+  Signature,
+  brainKey,
+  hash,
+  ecc_config
 };

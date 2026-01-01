@@ -26,475 +26,475 @@ const HEX_DUMP = process.env.npm_config__graphene_serializer_hex_dump
 *  is easily converted to something that can be displayed.
 */
 types.asset = {
-    fromByteBuffer(b){
-        const amount = b.readInt64()
-        const precision = b.readUint8()
-        const b_copy = b.copy(b.offset, b.offset + 7)
-        // eslint-disable-next-line no-control-regex
-        const symbol = new Buffer(b_copy.toBinary(), 'binary').toString().replace(/\x00/g, '')
-        b.skip(7);
-        // "1.000 VIZ" always written with full precision
-        const amount_string = fromImpliedDecimal(amount, precision)
-        return `${amount_string  } ${  symbol}`
-    },
+  fromByteBuffer(b){
+    const amount = b.readInt64()
+    const precision = b.readUint8()
+    const b_copy = b.copy(b.offset, b.offset + 7)
+    // eslint-disable-next-line no-control-regex
+    const symbol = new Buffer(b_copy.toBinary(), 'binary').toString().replace(/\x00/g, '')
+    b.skip(7);
+    // "1.000 VIZ" always written with full precision
+    const amount_string = fromImpliedDecimal(amount, precision)
+    return `${amount_string  } ${  symbol}`
+  },
 
-    appendByteBuffer(b, object){
-        object = object.trim()
-        if( ! /^[0-9]+\.?[0-9]* [A-Za-z0-9]+$/.test(object))
-            throw new Error(`Expecting amount like '99.000 SYMBOL', instead got '${  object  }'`)
+  appendByteBuffer(b, object){
+    object = object.trim()
+    if( ! /^[0-9]+\.?[0-9]* [A-Za-z0-9]+$/.test(object))
+      throw new Error(`Expecting amount like '99.000 SYMBOL', instead got '${  object  }'`)
 
-        const [ amount, symbol ] = object.split(' ')
-        if(symbol.length > 6)
-            throw new Error(`Symbols are not longer than 6 characters ${  symbol  }-${ symbol.length}`)
+    const [ amount, symbol ] = object.split(' ')
+    if(symbol.length > 6)
+      throw new Error(`Symbols are not longer than 6 characters ${  symbol  }-${ symbol.length}`)
 
-        b.writeInt64(v.to_long(amount.replace('.', '')))
-        const dot = amount.indexOf('.') // 0.000
-        const precision = dot === -1 ? 0 : amount.length - dot - 1
-        b.writeUint8(precision)
-        b.append(symbol.toUpperCase(), 'binary')
-        for(let i = 0; i < 7 - symbol.length; i++)
-            b.writeUint8(0)
-        return
-    },
+    b.writeInt64(v.to_long(amount.replace('.', '')))
+    const dot = amount.indexOf('.') // 0.000
+    const precision = dot === -1 ? 0 : amount.length - dot - 1
+    b.writeUint8(precision)
+    b.append(symbol.toUpperCase(), 'binary')
+    for(let i = 0; i < 7 - symbol.length; i++)
+      b.writeUint8(0)
+    return
+  },
 
-    fromObject(object){
-        return object
-    },
+  fromObject(object){
+    return object
+  },
 
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return '0.000 VIZ'; }
-        return object
-    }
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return '0.000 VIZ'; }
+    return object
+  }
 }
 
 types.uint8 = {
 
-    fromByteBuffer(b){
-        return b.readUint8();
-    },
-    appendByteBuffer(b, object){
-        v.require_range(0,0xFF,object, `uint8 ${object}`);
-        b.writeUint8(object);
-        return;
-    },
-    fromObject(object){
-        v.require_range(0,0xFF,object, `uint8 ${object}`);
-        return object;
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return 0; }
-        v.require_range(0,0xFF,object, `uint8 ${object}`);
-        return parseInt(object);
-    }
-    };
+  fromByteBuffer(b){
+    return b.readUint8();
+  },
+  appendByteBuffer(b, object){
+    v.require_range(0,0xFF,object, `uint8 ${object}`);
+    b.writeUint8(object);
+    return;
+  },
+  fromObject(object){
+    v.require_range(0,0xFF,object, `uint8 ${object}`);
+    return object;
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return 0; }
+    v.require_range(0,0xFF,object, `uint8 ${object}`);
+    return parseInt(object);
+  }
+};
 
 types.uint16 =
-    {fromByteBuffer(b){
-        return b.readUint16();
-    },
-    appendByteBuffer(b, object){
-        v.require_range(0,0xFFFF,object, `uint16 ${object}`);
-        b.writeUint16(object);
-        return;
-    },
-    fromObject(object){
-        v.require_range(0,0xFFFF,object, `uint16 ${object}`);
-        return object;
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return 0; }
-        v.require_range(0,0xFFFF,object, `uint16 ${object}`);
-        return parseInt(object);
-    }
-    };
+  {fromByteBuffer(b){
+    return b.readUint16();
+  },
+  appendByteBuffer(b, object){
+    v.require_range(0,0xFFFF,object, `uint16 ${object}`);
+    b.writeUint16(object);
+    return;
+  },
+  fromObject(object){
+    v.require_range(0,0xFFFF,object, `uint16 ${object}`);
+    return object;
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return 0; }
+    v.require_range(0,0xFFFF,object, `uint16 ${object}`);
+    return parseInt(object);
+  }
+  };
 
 types.uint32 =
-    {fromByteBuffer(b){
-        return b.readUint32();
-    },
-    appendByteBuffer(b, object){
-        v.require_range(0,0xFFFFFFFF,object, `uint32 ${object}`);
-        b.writeUint32(object);
-        return;
-    },
-    fromObject(object){
-        v.require_range(0,0xFFFFFFFF,object, `uint32 ${object}`);
-        return object;
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return 0; }
-        v.require_range(0,0xFFFFFFFF,object, `uint32 ${object}`);
-        return parseInt(object);
-    }
-    };
+  {fromByteBuffer(b){
+    return b.readUint32();
+  },
+  appendByteBuffer(b, object){
+    v.require_range(0,0xFFFFFFFF,object, `uint32 ${object}`);
+    b.writeUint32(object);
+    return;
+  },
+  fromObject(object){
+    v.require_range(0,0xFFFFFFFF,object, `uint32 ${object}`);
+    return object;
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return 0; }
+    v.require_range(0,0xFFFFFFFF,object, `uint32 ${object}`);
+    return parseInt(object);
+  }
+  };
 
 const MIN_SIGNED_32 = -1 * Math.pow(2,31);
 const MAX_SIGNED_32 = Math.pow(2,31) - 1;
 
 types.varint32 =
-    {fromByteBuffer(b){
-        return b.readVarint32();
-    },
-    appendByteBuffer(b, object){
-        v.require_range(
-            MIN_SIGNED_32,
-            MAX_SIGNED_32,
-            object,
-            `uint32 ${object}`
-        );
-        b.writeVarint32(object);
-        return;
-    },
-    fromObject(object){
-        v.require_range(
-            MIN_SIGNED_32,
-            MAX_SIGNED_32,
-            object,
-            `uint32 ${object}`
-        );
-        return object;
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return 0; }
-        v.require_range(
-            MIN_SIGNED_32,
-            MAX_SIGNED_32,
-            object,
-            `uint32 ${object}`
-        );
-        return parseInt(object);
-    }
-    };
+  {fromByteBuffer(b){
+    return b.readVarint32();
+  },
+  appendByteBuffer(b, object){
+    v.require_range(
+      MIN_SIGNED_32,
+      MAX_SIGNED_32,
+      object,
+      `uint32 ${object}`
+    );
+    b.writeVarint32(object);
+    return;
+  },
+  fromObject(object){
+    v.require_range(
+      MIN_SIGNED_32,
+      MAX_SIGNED_32,
+      object,
+      `uint32 ${object}`
+    );
+    return object;
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return 0; }
+    v.require_range(
+      MIN_SIGNED_32,
+      MAX_SIGNED_32,
+      object,
+      `uint32 ${object}`
+    );
+    return parseInt(object);
+  }
+  };
 
 types.int16 =
-    {fromByteBuffer(b){
-        return b.readInt16();
-    },
-    appendByteBuffer(b, object){
-        b.writeInt16(object);
-        return;
-    },
-    fromObject(object){
-        return object;
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return 0; }
-        return parseInt(object);
-    }
-    };
+  {fromByteBuffer(b){
+    return b.readInt16();
+  },
+  appendByteBuffer(b, object){
+    b.writeInt16(object);
+    return;
+  },
+  fromObject(object){
+    return object;
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return 0; }
+    return parseInt(object);
+  }
+  };
 
 types.int64 =
-    {fromByteBuffer(b){
-        return b.readInt64();
-    },
-    appendByteBuffer(b, object){
-        v.required(object);
-        b.writeInt64(v.to_long(object));
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        return v.to_long(object);
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return '0'; }
-        v.required(object);
-        return v.to_long(object).toString();
-    }
-    };
+  {fromByteBuffer(b){
+    return b.readInt64();
+  },
+  appendByteBuffer(b, object){
+    v.required(object);
+    b.writeInt64(v.to_long(object));
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    return v.to_long(object);
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return '0'; }
+    v.required(object);
+    return v.to_long(object).toString();
+  }
+  };
 
 types.uint64 =
-    {fromByteBuffer(b){
-        return b.readUint64();
-    },
-    appendByteBuffer(b, object){
-        b.writeUint64(v.to_long(v.unsigned(object)));
-        return;
-    },
-    fromObject(object){
-        return v.to_long(v.unsigned(object));
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return '0'; }
-        return v.to_long(object).toString();
-    }
-    };
+  {fromByteBuffer(b){
+    return b.readUint64();
+  },
+  appendByteBuffer(b, object){
+    b.writeUint64(v.to_long(v.unsigned(object)));
+    return;
+  },
+  fromObject(object){
+    return v.to_long(v.unsigned(object));
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return '0'; }
+    return v.to_long(object).toString();
+  }
+  };
 
 types.string =
-    {fromByteBuffer(b){
-        return new Buffer(b.readVString(), 'utf8');
-    },
-    appendByteBuffer(b, object){
-        v.required(object);
-        b.writeVString(object.toString())
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        return new Buffer(object, 'utf8');
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return ''; }
-        return object.toString('utf8');
-    }
-    };
+  {fromByteBuffer(b){
+    return new Buffer(b.readVString(), 'utf8');
+  },
+  appendByteBuffer(b, object){
+    v.required(object);
+    b.writeVString(object.toString())
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    return new Buffer(object, 'utf8');
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return ''; }
+    return object.toString('utf8');
+  }
+  };
 
 types.string_binary =
-    {fromByteBuffer(b){
-        let b_copy;
-        const len = b.readVarint32();
-        b_copy = b.copy(b.offset, b.offset + len), b.skip(len);
-        return new Buffer(b_copy.toBinary(), 'binary');
+  {fromByteBuffer(b){
+    let b_copy;
+    const len = b.readVarint32();
+    b_copy = b.copy(b.offset, b.offset + len), b.skip(len);
+    return new Buffer(b_copy.toBinary(), 'binary');
 
-    },
-    appendByteBuffer(b, object){
-        b.writeVarint32(object.length);
-        b.append(object.toString('binary'), 'binary');
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        return new Buffer(object);
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return ''; }
-        return object.toString();
-    }
-    };
+  },
+  appendByteBuffer(b, object){
+    b.writeVarint32(object.length);
+    b.append(object.toString('binary'), 'binary');
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    return new Buffer(object);
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return ''; }
+    return object.toString();
+  }
+  };
 
 types.bytes = function(size){
-    return {fromByteBuffer(b){
-        let b_copy;
-        if (size === undefined) {
-            const len = b.readVarint32();
-            b_copy = b.copy(b.offset, b.offset + len), b.skip(len);
-            return new Buffer(b_copy.toBinary(), 'binary');
-        } else {
-            b_copy = b.copy(b.offset, b.offset + size), b.skip(size);
-            return new Buffer(b_copy.toBinary(), 'binary');
-        }
-    },
-    appendByteBuffer(b, object){
-        v.required(object);
-        if(typeof object === 'string')
-            object = new Buffer(object, 'hex')
-
-        if (size === undefined) {
-            b.writeVarint32(object.length);
-        }
-        b.append(object.toString('binary'), 'binary');
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        if( Buffer.isBuffer(object) )
-            return object
-
-        return new Buffer(object, 'hex');
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            const zeros=function(num){ return new Array( num ).join( '00' ); };
-            return zeros(size);
-        }
-        v.required(object);
-        return object.toString('hex');
+  return {fromByteBuffer(b){
+    let b_copy;
+    if (size === undefined) {
+      const len = b.readVarint32();
+      b_copy = b.copy(b.offset, b.offset + len), b.skip(len);
+      return new Buffer(b_copy.toBinary(), 'binary');
+    } else {
+      b_copy = b.copy(b.offset, b.offset + size), b.skip(size);
+      return new Buffer(b_copy.toBinary(), 'binary');
     }
-    };
+  },
+  appendByteBuffer(b, object){
+    v.required(object);
+    if(typeof object === 'string')
+      object = new Buffer(object, 'hex')
+
+    if (size === undefined) {
+      b.writeVarint32(object.length);
+    }
+    b.append(object.toString('binary'), 'binary');
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    if( Buffer.isBuffer(object) )
+      return object
+
+    return new Buffer(object, 'hex');
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      const zeros=function(num){ return new Array( num ).join( '00' ); };
+      return zeros(size);
+    }
+    v.required(object);
+    return object.toString('hex');
+  }
+  };
 };
 
 types.bool =
-    {fromByteBuffer(b){
-        return b.readUint8() === 1
-    },
-    appendByteBuffer(b, object){
-        // supports boolean or integer
-        b.writeUint8(JSON.parse(object) ? 1 : 0);
-        return;
-    },
-    fromObject(object){
-        return JSON.parse(object) ? true : false
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) { return false; }
-        return JSON.parse(object) ? true : false
-    }
-};
+  {fromByteBuffer(b){
+    return b.readUint8() === 1
+  },
+  appendByteBuffer(b, object){
+    // supports boolean or integer
+    b.writeUint8(JSON.parse(object) ? 1 : 0);
+    return;
+  },
+  fromObject(object){
+    return JSON.parse(object) ? true : false
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) { return false; }
+    return JSON.parse(object) ? true : false
+  }
+  };
 
 types.void =
-    {fromByteBuffer(){
-        throw new Error('(void) undefined type');
-    },
-    appendByteBuffer(){
-        throw new Error('(void) undefined type');
-    },
-    fromObject(){
-        throw new Error('(void) undefined type');
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return undefined;
-        }
-        throw new Error('(void) undefined type');
+  {fromByteBuffer(){
+    throw new Error('(void) undefined type');
+  },
+  appendByteBuffer(){
+    throw new Error('(void) undefined type');
+  },
+  fromObject(){
+    throw new Error('(void) undefined type');
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      return undefined;
     }
-    };
+    throw new Error('(void) undefined type');
+  }
+  };
 
 types.array = function(st_operation){
-    return {fromByteBuffer(b){
-        const size = b.readVarint32();
-        if (HEX_DUMP) {
-            console.log(`varint32 size = ${  size.toString(16)}`);
-        }
-        const result = [];
-        for (let i = 0; 0 < size ? i < size : i > size; 0 < size ? i++ : i++) {
-            result.push(st_operation.fromByteBuffer(b));
-        }
-        return sortOperation(result, st_operation);
-    },
-    appendByteBuffer(b, object){
-        v.required(object)
-        object = sortOperation(object, st_operation)
-        b.writeVarint32(object.length);
-        for (let i = 0, o; i < object.length; i++) {
-            o = object[i];
-            st_operation.appendByteBuffer(b, o);
-        }
-    },
-    fromObject(object){
-        v.required(object)
-        object = sortOperation(object, st_operation)
-        const result = [];
-        for (let i = 0, o; i < object.length; i++) {
-            o = object[i];
-            result.push(st_operation.fromObject(o));
-        }
-        return result;
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return [ st_operation.toObject(object, debug) ];
-        }
-        v.required(object)
-        object = sortOperation(object, st_operation)
-
-        const result = [];
-        for (let i = 0, o; i < object.length; i++) {
-            o = object[i];
-            result.push(st_operation.toObject(o, debug));
-        }
-        return result;
+  return {fromByteBuffer(b){
+    const size = b.readVarint32();
+    if (HEX_DUMP) {
+      console.log(`varint32 size = ${  size.toString(16)}`);
     }
-    };
+    const result = [];
+    for (let i = 0; 0 < size ? i < size : i > size; 0 < size ? i++ : i++) {
+      result.push(st_operation.fromByteBuffer(b));
+    }
+    return sortOperation(result, st_operation);
+  },
+  appendByteBuffer(b, object){
+    v.required(object)
+    object = sortOperation(object, st_operation)
+    b.writeVarint32(object.length);
+    for (let i = 0, o; i < object.length; i++) {
+      o = object[i];
+      st_operation.appendByteBuffer(b, o);
+    }
+  },
+  fromObject(object){
+    v.required(object)
+    object = sortOperation(object, st_operation)
+    const result = [];
+    for (let i = 0, o; i < object.length; i++) {
+      o = object[i];
+      result.push(st_operation.fromObject(o));
+    }
+    return result;
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      return [ st_operation.toObject(object, debug) ];
+    }
+    v.required(object)
+    object = sortOperation(object, st_operation)
+
+    const result = [];
+    for (let i = 0, o; i < object.length; i++) {
+      o = object[i];
+      result.push(st_operation.toObject(o, debug));
+    }
+    return result;
+  }
+  };
 };
 
 types.time_point_sec = {
-    fromByteBuffer(b){ return b.readUint32(); },
-    appendByteBuffer(b, object){
-        if(typeof object !== 'number')
-            object = types.time_point_sec.fromObject(object)
+  fromByteBuffer(b){ return b.readUint32(); },
+  appendByteBuffer(b, object){
+    if(typeof object !== 'number')
+      object = types.time_point_sec.fromObject(object)
 
-        b.writeUint32(object);
-        return;
-    },
-    fromObject(object){
-        v.required(object)
+    b.writeUint32(object);
+    return;
+  },
+  fromObject(object){
+    v.required(object)
 
-        if(typeof object === 'number')
-            return object
+    if(typeof object === 'number')
+      return object
 
-        if(object.getTime)
-            return Math.floor( object.getTime() / 1000 );
+    if(object.getTime)
+      return Math.floor( object.getTime() / 1000 );
 
-        if(typeof object !== 'string')
-            throw new Error(`Unknown date type: ${  object}`)
+    if(typeof object !== 'string')
+      throw new Error(`Unknown date type: ${  object}`)
 
-        if(typeof object === 'string' && !/Z$/.test(object))
-            object = `${object  }Z`
+    if(typeof object === 'string' && !/Z$/.test(object))
+      object = `${object  }Z`
 
-        return Math.floor( new Date(object).getTime() / 1000 );
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined)
-            return (new Date(0)).toISOString().split('.')[0];
+    return Math.floor( new Date(object).getTime() / 1000 );
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined)
+      return (new Date(0)).toISOString().split('.')[0];
 
-        v.required(object)
+    v.required(object)
 
-        if(typeof object === 'string')
-            return object
+    if(typeof object === 'string')
+      return object
 
-        if(object.getTime)
-            return object.toISOString().split('.')[0]
+    if(object.getTime)
+      return object.toISOString().split('.')[0]
 
-        const int = parseInt(object);
-        v.require_range(0,0xFFFFFFFF,int, `uint32 ${object}`);
-        return (new Date( int * 1000 )).toISOString().split('.')[0];
-    }
+    const int = parseInt(object);
+    v.require_range(0,0xFFFFFFFF,int, `uint32 ${object}`);
+    return (new Date( int * 1000 )).toISOString().split('.')[0];
+  }
 }
 
 types.set = function(st_operation){
-    return {validate(array){
-        const dup_map = {};
-        for (let i = 0, o; i < array.length; i++) {
-            o = array[i];
-            let ref;
-            if (ref = typeof o, ['string', 'number'].indexOf(ref) >= 0) {
-                if (dup_map[o] !== undefined) {
-                    throw new Error('duplicate (set)');
-                }
-                dup_map[o] = true;
-            }
+  return {validate(array){
+    const dup_map = {};
+    for (let i = 0, o; i < array.length; i++) {
+      o = array[i];
+      let ref;
+      if (ref = typeof o, ['string', 'number'].indexOf(ref) >= 0) {
+        if (dup_map[o] !== undefined) {
+          throw new Error('duplicate (set)');
         }
-        return sortOperation(array, st_operation);
-    },
-    fromByteBuffer(b){
-        const size = b.readVarint32();
-        if (HEX_DUMP) {
-            console.log(`varint32 size = ${  size.toString(16)}`);
-        }
-        return this.validate(((() => {
-            const result = [];
-            for (let i = 0; 0 < size ? i < size : i > size; 0 < size ? i++ : i++) {
-                result.push(st_operation.fromByteBuffer(b));
-            }
-            return result;
-        })()));
-    },
-    appendByteBuffer(b, object){
-        if (!object) { object = []; }
-        b.writeVarint32(object.length);
-        const iterable = this.validate(object);
-        for (let i = 0, o; i < iterable.length; i++) {
-            o = iterable[i];
-            st_operation.appendByteBuffer(b, o);
-        }
-        return;
-    },
-    fromObject(object){
-        if (!object) { object = []; }
-        return this.validate(((() => {
-            const result = [];
-            for (let i = 0, o; i < object.length; i++) {
-                o = object[i];
-                result.push(st_operation.fromObject(o));
-            }
-            return result;
-        })()));
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return [ st_operation.toObject(object, debug) ];
-        }
-        if (!object) { object = []; }
-        return this.validate(((() => {
-            const result = [];
-            for (let i = 0, o; i < object.length; i++) {
-                o = object[i];
-                result.push(st_operation.toObject(o, debug));
-            }
-            return result;
-        })()));
+        dup_map[o] = true;
+      }
     }
-    };
+    return sortOperation(array, st_operation);
+  },
+  fromByteBuffer(b){
+    const size = b.readVarint32();
+    if (HEX_DUMP) {
+      console.log(`varint32 size = ${  size.toString(16)}`);
+    }
+    return this.validate(((() => {
+      const result = [];
+      for (let i = 0; 0 < size ? i < size : i > size; 0 < size ? i++ : i++) {
+        result.push(st_operation.fromByteBuffer(b));
+      }
+      return result;
+    })()));
+  },
+  appendByteBuffer(b, object){
+    if (!object) { object = []; }
+    b.writeVarint32(object.length);
+    const iterable = this.validate(object);
+    for (let i = 0, o; i < iterable.length; i++) {
+      o = iterable[i];
+      st_operation.appendByteBuffer(b, o);
+    }
+    return;
+  },
+  fromObject(object){
+    if (!object) { object = []; }
+    return this.validate(((() => {
+      const result = [];
+      for (let i = 0, o; i < object.length; i++) {
+        o = object[i];
+        result.push(st_operation.fromObject(o));
+      }
+      return result;
+    })()));
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      return [ st_operation.toObject(object, debug) ];
+    }
+    if (!object) { object = []; }
+    return this.validate(((() => {
+      const result = [];
+      for (let i = 0, o; i < object.length; i++) {
+        o = object[i];
+        result.push(st_operation.toObject(o, debug));
+      }
+      return result;
+    })()));
+  }
+  };
 };
 
 // global_parameters_update_operation current_fees
@@ -557,426 +557,426 @@ types.fixed_array = function(count, st_operation) {
 /* Supports instance numbers (11) or object types (1.2.11).  Object type
 validation is enforced when an object type is used. */
 const id_type = function(reserved_spaces, object_type){
-    v.required(reserved_spaces, 'reserved_spaces');
-    v.required(object_type, 'object_type');
-    return {fromByteBuffer(b){
-        return b.readVarint32();
-    },
-    appendByteBuffer(b, object){
-        v.required(object);
-        if (object.resolve !== undefined) { object = object.resolve; }
-        // convert 1.2.n into just n
-        if (/^[0-9]+\.[0-9]+\.[0-9]+$/.test(object)) {
-            object = v.get_instance(reserved_spaces, object_type, object);
-        }
-        b.writeVarint32(v.to_number(object));
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        if (object.resolve !== undefined) { object = object.resolve; }
-        if (v.is_digits(object)) {
-            return v.to_number(object);
-        }
-        return v.get_instance(reserved_spaces, object_type, object);
-    },
-    toObject(object, debug = {}){
-        const object_type_id = ChainTypes.object_type[object_type];
-        if (debug.use_default && object === undefined) {
-            return `${reserved_spaces}.${object_type_id}.0`;
-        }
-        v.required(object);
-        if (object.resolve !== undefined) { object = object.resolve; }
-        if (/^[0-9]+\.[0-9]+\.[0-9]+$/.test(object)) {
-            object = v.get_instance(reserved_spaces, object_type, object);
-        }
+  v.required(reserved_spaces, 'reserved_spaces');
+  v.required(object_type, 'object_type');
+  return {fromByteBuffer(b){
+    return b.readVarint32();
+  },
+  appendByteBuffer(b, object){
+    v.required(object);
+    if (object.resolve !== undefined) { object = object.resolve; }
+    // convert 1.2.n into just n
+    if (/^[0-9]+\.[0-9]+\.[0-9]+$/.test(object)) {
+      object = v.get_instance(reserved_spaces, object_type, object);
+    }
+    b.writeVarint32(v.to_number(object));
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    if (object.resolve !== undefined) { object = object.resolve; }
+    if (v.is_digits(object)) {
+      return v.to_number(object);
+    }
+    return v.get_instance(reserved_spaces, object_type, object);
+  },
+  toObject(object, debug = {}){
+    const object_type_id = ChainTypes.object_type[object_type];
+    if (debug.use_default && object === undefined) {
+      return `${reserved_spaces}.${object_type_id}.0`;
+    }
+    v.required(object);
+    if (object.resolve !== undefined) { object = object.resolve; }
+    if (/^[0-9]+\.[0-9]+\.[0-9]+$/.test(object)) {
+      object = v.get_instance(reserved_spaces, object_type, object);
+    }
 
-        return `${reserved_spaces}.${object_type_id}.${object}`;
-    },
-    };
+    return `${reserved_spaces}.${object_type_id}.${object}`;
+  },
+  };
 };
 
 types.protocol_id_type = function(name){
-    v.required(name, 'name')
-    return id_type(ChainTypes.reserved_spaces.protocol_ids, name);
+  v.required(name, 'name')
+  return id_type(ChainTypes.reserved_spaces.protocol_ids, name);
 };
 
 types.object_id_type =
-    {fromByteBuffer(b){
-        return ObjectId.fromByteBuffer(b);
-    },
-    appendByteBuffer(b, object){
-        v.required(object);
-        if (object.resolve !== undefined) { object = object.resolve; }
-        object = ObjectId.fromString(object);
-        object.appendByteBuffer(b);
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        if (object.resolve !== undefined) { object = object.resolve; }
-        return ObjectId.fromString(object);
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return '0.0.0';
-        }
-        v.required(object);
-        if (object.resolve !== undefined) {
-            object = object.resolve;
-        }
-        object = ObjectId.fromString(object);
-        return object.toString();
+  {fromByteBuffer(b){
+    return ObjectId.fromByteBuffer(b);
+  },
+  appendByteBuffer(b, object){
+    v.required(object);
+    if (object.resolve !== undefined) { object = object.resolve; }
+    object = ObjectId.fromString(object);
+    object.appendByteBuffer(b);
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    if (object.resolve !== undefined) { object = object.resolve; }
+    return ObjectId.fromString(object);
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      return '0.0.0';
     }
-    };
+    v.required(object);
+    if (object.resolve !== undefined) {
+      object = object.resolve;
+    }
+    object = ObjectId.fromString(object);
+    return object.toString();
+  }
+  };
 
 types.vote_id =
-    {TYPE: 0x000000FF,
+  {TYPE: 0x000000FF,
     ID:   0xFFFFFF00,
     fromByteBuffer(b){
-        const value = b.readUint32();
-        return {
-            type: value & this.TYPE,
-            id: value & this.ID
-        };
+      const value = b.readUint32();
+      return {
+        type: value & this.TYPE,
+        id: value & this.ID
+      };
     },
     appendByteBuffer(b, object){
-        v.required(object);
-        if(object === 'string')
-            object = types.vote_id.fromObject(object)
+      v.required(object);
+      if(object === 'string')
+        object = types.vote_id.fromObject(object)
 
-        const value = object.id << 8 | object.type
-        b.writeUint32(value);
-        return;
+      const value = object.id << 8 | object.type
+      b.writeUint32(value);
+      return;
     },
     fromObject(object){
-        v.required(object, '(type vote_id)');
-        if(typeof object === 'object') {
-            v.required(object.type, 'type')
-            v.required(object.id, 'id')
-            return object
-        }
-        v.require_test(/^[0-9]+:[0-9]+$/, object, `vote_id format ${object}`);
-        const [type, id] = object.split(':');
-        v.require_range(0,0xff,type,`vote type ${object}`);
-        v.require_range(0,0xffffff,id,`vote id ${object}`);
-        return { type, id };
+      v.required(object, '(type vote_id)');
+      if(typeof object === 'object') {
+        v.required(object.type, 'type')
+        v.required(object.id, 'id')
+        return object
+      }
+      v.require_test(/^[0-9]+:[0-9]+$/, object, `vote_id format ${object}`);
+      const [type, id] = object.split(':');
+      v.require_range(0,0xff,type,`vote type ${object}`);
+      v.require_range(0,0xffffff,id,`vote id ${object}`);
+      return { type, id };
     },
     toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return '0:0';
-        }
-        v.required(object);
-        if(typeof object === 'string')
-            object = types.vote_id.fromObject(object)
+      if (debug.use_default && object === undefined) {
+        return '0:0';
+      }
+      v.required(object);
+      if(typeof object === 'string')
+        object = types.vote_id.fromObject(object)
 
-        return `${object.type  }:${  object.id}`;
+      return `${object.type  }:${  object.id}`;
     },
     compare(a, b) {
-        if(typeof a !== 'object') a = types.vote_id.fromObject(a)
-        if(typeof b !== 'object') b = types.vote_id.fromObject(b)
-        return parseInt(a.id) - parseInt(b.id);
+      if(typeof a !== 'object') a = types.vote_id.fromObject(a)
+      if(typeof b !== 'object') b = types.vote_id.fromObject(b)
+      return parseInt(a.id) - parseInt(b.id);
     }
-};
+  };
 
 types.optional = function(st_operation){
-    v.required(st_operation, 'st_operation');
-    return {fromByteBuffer(b){
-        if (!(b.readUint8() === 1)) {
-            return undefined;
-        }
-        return st_operation.fromByteBuffer(b);
-    },
-    appendByteBuffer(b, object){
-        if (object !== null && object !== undefined) {
-            b.writeUint8(1);
-            st_operation.appendByteBuffer(b, object);
-        } else {
-            b.writeUint8(0);
-        }
-        return;
-    },
-    fromObject(object){
-        if (object === undefined) { return undefined; }
-        return st_operation.fromObject(object);
-    },
-    toObject(object, debug = {}){
-        // toObject is only null save if use_default is true
-        let result_object = (() => {
-            if (!debug.use_default && object === undefined) {
-                return undefined;
-            } else {
-                return st_operation.toObject(object, debug);
-            }
-        })();
-
-        if (debug.annotate) {
-            if (typeof result_object === 'object') {
-                result_object.__optional = 'parent is optional';
-            } else {
-                result_object = {__optional: result_object};
-            }
-        }
-        return result_object;
+  v.required(st_operation, 'st_operation');
+  return {fromByteBuffer(b){
+    if (!(b.readUint8() === 1)) {
+      return undefined;
     }
-    };
+    return st_operation.fromByteBuffer(b);
+  },
+  appendByteBuffer(b, object){
+    if (object !== null && object !== undefined) {
+      b.writeUint8(1);
+      st_operation.appendByteBuffer(b, object);
+    } else {
+      b.writeUint8(0);
+    }
+    return;
+  },
+  fromObject(object){
+    if (object === undefined) { return undefined; }
+    return st_operation.fromObject(object);
+  },
+  toObject(object, debug = {}){
+    // toObject is only null save if use_default is true
+    let result_object = (() => {
+      if (!debug.use_default && object === undefined) {
+        return undefined;
+      } else {
+        return st_operation.toObject(object, debug);
+      }
+    })();
+
+    if (debug.annotate) {
+      if (typeof result_object === 'object') {
+        result_object.__optional = 'parent is optional';
+      } else {
+        result_object = {__optional: result_object};
+      }
+    }
+    return result_object;
+  }
+  };
 };
 
 types.static_variant = function(_st_operations){
-    return {
-        nosort: true,
-        st_operations: _st_operations,
+  return {
+    nosort: true,
+    st_operations: _st_operations,
     opTypeId(value) {
-        let pos = 0, type_id
-        if(typeof value === 'number')
-            type_id = value
-        else {
-            for(const op of this.st_operations) {
-                if(op.operation_name === value) {
-                    type_id = pos
-                    break
-                }
-                pos++
-            }
+      let pos = 0, type_id
+      if(typeof value === 'number')
+        type_id = value
+      else {
+        for(const op of this.st_operations) {
+          if(op.operation_name === value) {
+            type_id = pos
+            break
+          }
+          pos++
         }
-        return type_id
+      }
+      return type_id
     },
 
     fromByteBuffer(b){
-        const type_id = b.readVarint32();
-        const st_operation = this.st_operations[type_id];
-        if (HEX_DUMP) {
-            console.error(`static_variant id 0x${type_id.toString(16)} (${type_id})`);
-        }
-        v.required(st_operation, `operation ${type_id}`);
-        return [
-            type_id,
-            st_operation.fromByteBuffer(b)
-        ];
+      const type_id = b.readVarint32();
+      const st_operation = this.st_operations[type_id];
+      if (HEX_DUMP) {
+        console.error(`static_variant id 0x${type_id.toString(16)} (${type_id})`);
+      }
+      v.required(st_operation, `operation ${type_id}`);
+      return [
+        type_id,
+        st_operation.fromByteBuffer(b)
+      ];
     },
 
     appendByteBuffer(b, object){
-        v.required(object);
-        const type_id = this.opTypeId(object[0]);
-        const st_operation = this.st_operations[type_id];
-        v.required(st_operation, `operation ${type_id}`);
-        b.writeVarint32(type_id);
-        st_operation.appendByteBuffer(b, object[1]);
-        return;
+      v.required(object);
+      const type_id = this.opTypeId(object[0]);
+      const st_operation = this.st_operations[type_id];
+      v.required(st_operation, `operation ${type_id}`);
+      b.writeVarint32(type_id);
+      st_operation.appendByteBuffer(b, object[1]);
+      return;
     },
 
     fromObject(object){
-        v.required(object);
-        const type_id = this.opTypeId(object[0]);
-        const st_operation = this.st_operations[type_id];
-        v.required(st_operation, `operation ${type_id}`);
-        return [
-            type_id,
-            st_operation.fromObject(object[1])
-        ];
+      v.required(object);
+      const type_id = this.opTypeId(object[0]);
+      const st_operation = this.st_operations[type_id];
+      v.required(st_operation, `operation ${type_id}`);
+      return [
+        type_id,
+        st_operation.fromObject(object[1])
+      ];
     },
 
     toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return [this.st_operations[0].operation_name, this.st_operations[0].toObject(undefined, debug)];
-        }
-        v.required(object);
-        const type_id = this.opTypeId(object[0]);
-        const st_operation = this.st_operations[type_id];
-        v.required(st_operation, `operation ${type_id}`);
-        return [
-            st_operation.operation_name,
-            st_operation.toObject(object[1], debug)
-        ];
+      if (debug.use_default && object === undefined) {
+        return [this.st_operations[0].operation_name, this.st_operations[0].toObject(undefined, debug)];
+      }
+      v.required(object);
+      const type_id = this.opTypeId(object[0]);
+      const st_operation = this.st_operations[type_id];
+      v.required(st_operation, `operation ${type_id}`);
+      return [
+        st_operation.operation_name,
+        st_operation.toObject(object[1], debug)
+      ];
     },
 
     compare(a, b) {
-        return strCmp(this.opTypeId(a[0]), this.opTypeId(b[0]))
+      return strCmp(this.opTypeId(a[0]), this.opTypeId(b[0]))
     }
-    };
+  };
 };
 
 types.map = function(key_st_operation, value_st_operation){
-    return {validate(array){
-        if (!Array.isArray(array)) {
-            throw new Error('expecting array');
-        }
-        const dup_map = {};
-        for (let i = 0, o; i < array.length; i++) {
-            o = array[i];
-            let ref;
-            if (!(o.length === 2)) {
-                throw new Error('expecting two elements');
-            }
-            if (ref = typeof o[0], ['number', 'string'].indexOf(ref) >= 0) {
-                if (dup_map[o[0]] !== undefined) {
-                    throw new Error('duplicate (map)');
-                }
-                dup_map[o[0]] = true;
-            }
-        }
-        return sortOperation(array, key_st_operation);
-    },
-
-    fromByteBuffer(b){
-        const result = [];
-        const end = b.readVarint32();
-        for (let i = 0; 0 < end ? i < end : i > end; 0 < end ? i++ : i++) {
-            result.push([
-                key_st_operation.fromByteBuffer(b),
-                value_st_operation.fromByteBuffer(b)
-            ]);
-        }
-        return this.validate(result);
-    },
-
-    appendByteBuffer(b, object){
-        this.validate(object);
-        b.writeVarint32(object.length);
-        for (let i = 0, o; i < object.length; i++) {
-            o = object[i];
-            key_st_operation.appendByteBuffer(b, o[0]);
-            value_st_operation.appendByteBuffer(b, o[1]);
-        }
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        const result = [];
-        for (let i = 0, o; i < object.length; i++) {
-            o = object[i];
-            result.push([
-                key_st_operation.fromObject(o[0]),
-                value_st_operation.fromObject(o[1])
-            ]);
-        }
-        return this.validate(result)
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return [
-                [
-                    key_st_operation.toObject(undefined, debug),
-                    value_st_operation.toObject(undefined, debug)
-                ]
-            ];
-        }
-        v.required(object);
-        object = this.validate(object);
-        const result = []
-        for (let i = 0, o; i < object.length; i++) {
-            o = object[i];
-            result.push([
-                key_st_operation.toObject(o[0], debug),
-                value_st_operation.toObject(o[1], debug)
-            ]);
-        }
-        return result
+  return {validate(array){
+    if (!Array.isArray(array)) {
+      throw new Error('expecting array');
     }
-    };
+    const dup_map = {};
+    for (let i = 0, o; i < array.length; i++) {
+      o = array[i];
+      let ref;
+      if (!(o.length === 2)) {
+        throw new Error('expecting two elements');
+      }
+      if (ref = typeof o[0], ['number', 'string'].indexOf(ref) >= 0) {
+        if (dup_map[o[0]] !== undefined) {
+          throw new Error('duplicate (map)');
+        }
+        dup_map[o[0]] = true;
+      }
+    }
+    return sortOperation(array, key_st_operation);
+  },
+
+  fromByteBuffer(b){
+    const result = [];
+    const end = b.readVarint32();
+    for (let i = 0; 0 < end ? i < end : i > end; 0 < end ? i++ : i++) {
+      result.push([
+        key_st_operation.fromByteBuffer(b),
+        value_st_operation.fromByteBuffer(b)
+      ]);
+    }
+    return this.validate(result);
+  },
+
+  appendByteBuffer(b, object){
+    this.validate(object);
+    b.writeVarint32(object.length);
+    for (let i = 0, o; i < object.length; i++) {
+      o = object[i];
+      key_st_operation.appendByteBuffer(b, o[0]);
+      value_st_operation.appendByteBuffer(b, o[1]);
+    }
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    const result = [];
+    for (let i = 0, o; i < object.length; i++) {
+      o = object[i];
+      result.push([
+        key_st_operation.fromObject(o[0]),
+        value_st_operation.fromObject(o[1])
+      ]);
+    }
+    return this.validate(result)
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      return [
+        [
+          key_st_operation.toObject(undefined, debug),
+          value_st_operation.toObject(undefined, debug)
+        ]
+      ];
+    }
+    v.required(object);
+    object = this.validate(object);
+    const result = []
+    for (let i = 0, o; i < object.length; i++) {
+      o = object[i];
+      result.push([
+        key_st_operation.toObject(o[0], debug),
+        value_st_operation.toObject(o[1], debug)
+      ]);
+    }
+    return result
+  }
+  };
 };
 
 types.public_key = {
-    toPublic(object){
-        if (object.resolve !== undefined) { object = object.resolve; }
-        return object == null ? object :
-            object.Q ? object : PublicKey.fromStringOrThrow(object)
-    },
-    fromByteBuffer(b){
-        return fp.public_key(b);
-    },
-    appendByteBuffer(b, object){
-        v.required(object);
-        fp.public_key(b, types.public_key.toPublic(object));
-        return;
-    },
-    fromObject(object){
-        v.required(object);
-        if (object.Q) { return object; }
-        return types.public_key.toPublic(object);
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return `${ecc_config.get('address_prefix')}859gxfnXyUriMgUeThh1fWv3oqcpLFyHa3TfFYC4PK2HqhToVM`;
-        }
-        v.required(object);
-        return object.toString()
-    },
-    compare(a, b) {
-        // sort ascending
-        return 1 * strCmp(a.toString(), b.toString())
+  toPublic(object){
+    if (object.resolve !== undefined) { object = object.resolve; }
+    return object == null ? object :
+      object.Q ? object : PublicKey.fromStringOrThrow(object)
+  },
+  fromByteBuffer(b){
+    return fp.public_key(b);
+  },
+  appendByteBuffer(b, object){
+    v.required(object);
+    fp.public_key(b, types.public_key.toPublic(object));
+    return;
+  },
+  fromObject(object){
+    v.required(object);
+    if (object.Q) { return object; }
+    return types.public_key.toPublic(object);
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      return `${ecc_config.get('address_prefix')}859gxfnXyUriMgUeThh1fWv3oqcpLFyHa3TfFYC4PK2HqhToVM`;
     }
+    v.required(object);
+    return object.toString()
+  },
+  compare(a, b) {
+    // sort ascending
+    return 1 * strCmp(a.toString(), b.toString())
+  }
 };
 
 types.address =
-    {_to_address(object){
-        v.required(object);
-        if (object.addy) { return object; }
-        return Address.fromString(object);
-    },
-    fromByteBuffer(b){
-        return new Address(fp.ripemd160(b));
-    },
-    appendByteBuffer(b, object){
-        fp.ripemd160(b, types.address._to_address(object).toBuffer());
-        return;
-    },
-    fromObject(object){
-        return types.address._to_address(object);
-    },
-    toObject(object, debug = {}){
-        if (debug.use_default && object === undefined) {
-            return `${ecc_config.get('address_prefix')}664KmHxSuQyDsfwo4WEJvWpzg1QKdg67S`;
-        }
-        return types.address._to_address(object).toString();
-    },
-    compare(a, b) {
-        // sort decending
-        return -1 * strCmp(a.toString(), b.toString())
+  {_to_address(object){
+    v.required(object);
+    if (object.addy) { return object; }
+    return Address.fromString(object);
+  },
+  fromByteBuffer(b){
+    return new Address(fp.ripemd160(b));
+  },
+  appendByteBuffer(b, object){
+    fp.ripemd160(b, types.address._to_address(object).toBuffer());
+    return;
+  },
+  fromObject(object){
+    return types.address._to_address(object);
+  },
+  toObject(object, debug = {}){
+    if (debug.use_default && object === undefined) {
+      return `${ecc_config.get('address_prefix')}664KmHxSuQyDsfwo4WEJvWpzg1QKdg67S`;
     }
-}
+    return types.address._to_address(object).toString();
+  },
+  compare(a, b) {
+    // sort decending
+    return -1 * strCmp(a.toString(), b.toString())
+  }
+  }
 
 const strCmp = (a, b) => a > b ? 1 : a < b ? -1 : 0
 const firstEl = el => Array.isArray(el) ? el[0] : el
 const sortOperation = (array, st_operation) => {
-    // console.log('operation.nosort', st_operation.nosort)
-    return st_operation.nosort ? array :
+  // console.log('operation.nosort', st_operation.nosort)
+  return st_operation.nosort ? array :
     st_operation.compare ?
-    array.sort((a,b)=> st_operation.compare(firstEl(a), firstEl(b))) : // custom compare operation
-    array.sort((a,b)=>
+      array.sort((a,b)=> st_operation.compare(firstEl(a), firstEl(b))) : // custom compare operation
+      array.sort((a,b)=>
         typeof firstEl(a) === 'number' && typeof firstEl(b) === 'number' ? firstEl(a) - firstEl(b) :
         // A binary string compare does not work. Performanance is very good so HEX is used..  localeCompare is another option.
-        Buffer.isBuffer(firstEl(a)) && Buffer.isBuffer(firstEl(b)) ? strCmp(firstEl(a).toString('hex'), firstEl(b).toString('hex')) :
-        strCmp(firstEl(a).toString(), firstEl(b).toString())
-    )
+          Buffer.isBuffer(firstEl(a)) && Buffer.isBuffer(firstEl(b)) ? strCmp(firstEl(a).toString('hex'), firstEl(b).toString('hex')) :
+            strCmp(firstEl(a).toString(), firstEl(b).toString())
+      )
 }
 
 export const {
-    asset,
-    uint8,
-    uint16,
-    uint32,
-    varint32,
-    int16,
-    int64,
-    uint64,
-    string,
-    string_binary,
-    bytes,
-    bool,
-    void: void_type,
-    array,
-    time_point_sec,
-    set,
-    fixed_array,
-    protocol_id_type,
-    object_id_type,
-    vote_id,
-    optional,
-    static_variant,
-    map,
-    public_key,
-    address
+  asset,
+  uint8,
+  uint16,
+  uint32,
+  varint32,
+  int16,
+  int64,
+  uint64,
+  string,
+  string_binary,
+  bytes,
+  bool,
+  void: void_type,
+  array,
+  time_point_sec,
+  set,
+  fixed_array,
+  protocol_id_type,
+  object_id_type,
+  vote_id,
+  optional,
+  static_variant,
+  map,
+  public_key,
+  address
 } = types;
 
 export default types;

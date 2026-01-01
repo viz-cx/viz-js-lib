@@ -3,7 +3,7 @@ import newDebug from 'debug';
 import Transport from './base.js';
 import config from '../../config.js';
 
-const debug = newDebug('VIZ:http');
+const debug = newDebug('viz:http');
 
 class RPCError extends Error {
   constructor(rpcError) {

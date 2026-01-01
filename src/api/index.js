@@ -12,7 +12,6 @@ import formatter from '../formatter.js';
 
 const debugEmitters = newDebug('viz:emitters');
 const debugProtocol = newDebug('viz:protocol');
-const debugSetup = newDebug('viz:setup');
 const debugWs = newDebug('viz:ws');
 
 const DEFAULTS = {
@@ -26,66 +25,64 @@ class VIZ extends EventEmitter {
     this.options = cloneDeep(options);
     this.id = 0;
     this.inFlight = 0;
-    this.currentP = Promise.fulfilled();
-    this.isOpen = false;
-    this.releases = [];
     this.requests = {};
-    this.ws = ws;
-    this.http = http;
     this.formatter = formatter;
     this.config = config;
   }
 
   _setTransport(url) {
-      if (url && url.match('^((http|https)?://)')) {
-        this.transport = new http();
-      } else if (url && url.match('^((ws|wss)?://)')) {
-        this.transport = new ws();
-      } else {
-      throw Error(`unknown transport! [${  url  }]`);
+    if (url && url.match('^((http|https)?://)')) {
+      this.ws = new http();
+    } else if (url && url.match('^((ws|wss)?://)')) {
+      this.ws = new ws();
+    } else {
+      throw Error(`unknown transport! [${url}]`);
     }
-  }
-
-  setWebSocket(url) {
-    console.warn("viz.api.setWebSocket(url) is now deprecated instead use viz.config.set('websocket',url)");
-    debugSetup('Setting WS', url);
-    config.set('websocket', url);
-    this._setTransport(url);
-    this.stop();
   }
 
   start() {
     const url = config.get('websocket');
     this._setTransport(url);
-    return this.transport.start();
+    return this.ws.start();
   }
 
   stop() {
-    const ret = this.transport.stop();
-    this.transport = null;
+    const ret = this.ws.stop();
+    this.ws = null;
     return ret;
   }
 
-
   listenTo(target, eventName, callback) {
-    debugEmitters('Adding listener for', eventName, 'from', target.constructor.name);
+    debugEmitters(
+      'Adding listener for',
+      eventName,
+      'from',
+      target.constructor.name
+    );
     if (target.addEventListener) target.addEventListener(eventName, callback);
     else target.on(eventName, callback);
 
     return () => {
-      debugEmitters('Removing listener for', eventName, 'from', target.constructor.name);
-      if (target.removeEventListener) target.removeEventListener(eventName, callback);
+      debugEmitters(
+        'Removing listener for',
+        eventName,
+        'from',
+        target.constructor.name
+      );
+      if (target.removeEventListener)
+        target.removeEventListener(eventName, callback);
       else target.removeListener(eventName, callback);
     };
   }
 
   onMessage(message, request) {
-    const {api, data, resolve, reject, start_time} = request;
+    const { api, data, resolve, reject, start_time } = request;
     debugWs('-- VIZ.onMessage -->', message.id);
     const errorCause = message.error;
     if (errorCause) {
       const err = new Error(
-        `${errorCause.message || 'Failed to complete operation'
+        `${
+          errorCause.message || 'Failed to complete operation'
         } (see err.payload for the full error payload)`
       );
       err.payload = message;
@@ -99,27 +96,27 @@ class VIZ extends EventEmitter {
     resolve(message.result);
   }
 
-  send(api, data, callback, ...args) {
-    if(!this.transport) {
-        this.start();
+  async send(api, data, callback, ...args) {
+    if (!this.ws) {
+      await this.start();
     }
     let cb = callback;
     if (this.__logger) {
-        const id = Math.random();
-        const self = this;
-        this.log(`xmit:${  id  }:`, data)
-        cb = function(e, d) {
-            if (e) {
-                self.log('error', `rsp:${  id  }:\n\n`, e, d)
-            } else {
-                self.log(`rsp:${  id  }:`, d)
-            }
-            if (callback) {
-                callback.apply(self, args)
-            }
+      const id = Math.random();
+      const self = this;
+      this.log(`xmit:${id}:`, data);
+      cb = function (e, d) {
+        if (e) {
+          self.log('error', `rsp:${id}:\n\n`, e, d);
+        } else {
+          self.log(`rsp:${id}:`, d);
         }
+        if (callback) {
+          callback.apply(self, args);
+        }
+      };
     }
-    return this.transport.send(api, data, cb);
+    return this.ws.send(api, data, cb);
   }
 
   streamBlockNumber(mode = 'head', callback, ts = 200) {
@@ -133,11 +130,12 @@ class VIZ extends EventEmitter {
     const update = () => {
       if (!running) return;
 
-      this.getDynamicGlobalPropertiesAsync()
-        .then((result) => {
-          const blockId = mode === 'irreversible'
-            ? result.last_irreversible_block_num
-            : result.head_block_number;
+      this.getDynamicGlobalPropertiesAsync().then(
+        (result) => {
+          const blockId =
+            mode === 'irreversible'
+              ? result.last_irreversible_block_num
+              : result.head_block_number;
 
           if (blockId !== current) {
             if (current) {
@@ -156,9 +154,11 @@ class VIZ extends EventEmitter {
           Promise.delay(ts).then(() => {
             update();
           });
-        }, (err) => {
+        },
+        (err) => {
           callback(err);
-        });
+        }
+      );
     };
 
     update();
@@ -244,30 +244,33 @@ methods.forEach((method) => {
   const methodName = method.method_name || camelCase(method.method);
   const methodParams = method.params || [];
 
-  VIZ.prototype[`${methodName}With`] =
-    function VIZ$$specializedSendWith(options, callback) {
-      const params = methodParams.map((param) => options[param]);
-      return this.send(method.api, {
+  VIZ.prototype[`${methodName}With`] = function VIZ$$specializedSendWith(
+    options,
+    callback
+  ) {
+    const params = methodParams.map((param) => options[param]);
+    return this.send(
+      method.api,
+      {
         method: method.method,
         params,
-      }, callback);
-    };
+      },
+      callback
+    );
+  };
 
-  VIZ.prototype[methodName] =
-    function VIZ$specializedSend(...args) {
-      const options = methodParams.reduce((memo, param, i) => {
-        memo[param] = args[i];
-        return memo;
-      }, {});
-      const callback = args[methodParams.length];
+  VIZ.prototype[methodName] = function VIZ$specializedSend(...args) {
+    const options = methodParams.reduce((memo, param, i) => {
+      memo[param] = args[i];
+      return memo;
+    }, {});
+    const callback = args[methodParams.length];
 
-      return this[`${methodName}With`](options, callback);
-    };
+    return this[`${methodName}With`](options, callback);
+  };
 });
 
 Promise.promisifyAll(VIZ.prototype);
 
-export { ws, http, VIZ, DEFAULTS, formatter };
-
-const viz = new VIZ();
-export default viz;
+export { VIZ };
+export default new VIZ();;

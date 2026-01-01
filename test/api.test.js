@@ -34,33 +34,33 @@ describe('viz.api:', function () {
     });
   });
 
-//   describe('getFollowers', () => {
-//     it('works', async () => {
-//       const result = await viz.getFollowersAsync('viz', 0, 'blog', 1);
-//       result.should.have.length(1);
-//     });
-//   });
+  //   describe('getFollowers', () => {
+  //     it('works', async () => {
+  //       const result = await viz.getFollowersAsync('viz', 0, 'blog', 1);
+  //       result.should.have.length(1);
+  //     });
+  //   });
 
-//   describe('getContent', () => {
-//     it('works', async () => {
-//       const result = await viz.getContentAsync('pal', '2scmtp-test');
-//       result.should.have.properties(testPost);
-//     });
-//   });
+  //   describe('getContent', () => {
+  //     it('works', async () => {
+  //       const result = await viz.getContentAsync('pal', '2scmtp-test');
+  //       result.should.have.properties(testPost);
+  //     });
+  //   });
 
-//   describe('streamBlockNumber', () => {
-//     it('streams blocks', (done) => {
-//       let i = 0;
-//       const release = viz.streamBlockNumber((_, block) => {
-//         should.exist(block);
-//         block.should.be.a.Number();
-//         if (++i === 2) {
-//           release();
-//           done();
-//         }
-//       });
-//     });
-//   });
+  //   describe('streamBlockNumber', () => {
+  //     it('streams blocks', (done) => {
+  //       let i = 0;
+  //       const release = viz.streamBlockNumber((_, block) => {
+  //         should.exist(block);
+  //         block.should.be.a.Number();
+  //         if (++i === 2) {
+  //           release();
+  //           done();
+  //         }
+  //       });
+  //     });
+  //   });
 
   describe('reconnect on ws close', () => {
     const originalStart = VIZ.prototype.start;

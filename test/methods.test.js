@@ -5,18 +5,18 @@ import { methods_test } from './methods_by_version.js'
 
 describe('viz.methods', () => {
 
-    it('has all generated methods', () => {
+  it('has all generated methods', () => {
 
-        const methods = methods_test
-            .map( m => `${camelCase(m)}`)
-            .sort()
+    const methods = methods_test
+      .map( m => `${camelCase(m)}`)
+      .sort()
 
-        const libMethods = Object.keys(VIZ.prototype)
-            .filter( m => !m.endsWith('With'))
-            .filter( m => !m.endsWith('Async'))
-            .sort()
+    const libMethods = Object.keys(VIZ.prototype)
+      .filter( m => !m.endsWith('With'))
+      .filter( m => !m.endsWith('Async'))
+      .sort()
 
-        assert.equal(libMethods.length, methods.length)
-        assert.deepEqual(libMethods, methods)
-    })
+    assert.equal(libMethods.length, methods.length)
+    assert.deepEqual(libMethods, methods)
+  })
 })
