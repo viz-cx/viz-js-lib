@@ -833,6 +833,13 @@
   dependencies:
     eslint-visitor-keys "^3.4.3"
 
+"@eslint-community/eslint-utils@^4.9.0":
+  version "4.9.1"
+  resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.9.1.tgz#4e90af67bc51ddee6cdef5284edf572ec376b595"
+  integrity sha512-phrYmNiYppR7znFEdqgfWHXR6NCkZEK7hwWDHZUjit/2/U0r6XvkDl0SYnoM51Hq7FhCGdLDT6zxCCOY1hexsQ==
+  dependencies:
+    eslint-visitor-keys "^3.4.3"
+
 "@eslint-community/regexpp@^4.12.1":
   version "4.12.2"
   resolved "https://registry.npmjs.org/@eslint-community/regexpp/-/regexpp-4.12.2.tgz"
@@ -991,6 +998,18 @@
   resolved "https://registry.npmjs.org/@rtsao/scc/-/scc-1.1.0.tgz"
   integrity sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==
 
+"@stylistic/eslint-plugin@^5.6.1":
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/@stylistic/eslint-plugin/-/eslint-plugin-5.6.1.tgz#98e1371757881eecce69b1ec497ef6fc7d6470c9"
+  integrity sha512-JCs+MqoXfXrRPGbGmho/zGS/jMcn3ieKl/A8YImqib76C8kjgZwq5uUFzc30lJkMvcchuRn6/v8IApLxli3Jyw==
+  dependencies:
+    "@eslint-community/eslint-utils" "^4.9.0"
+    "@typescript-eslint/types" "^8.47.0"
+    eslint-visitor-keys "^4.2.1"
+    espree "^10.4.0"
+    estraverse "^5.3.0"
+    picomatch "^4.0.3"
+
 "@types/eslint-scope@^3.7.7":
   version "3.7.7"
   resolved "https://registry.npmjs.org/@types/eslint-scope/-/eslint-scope-3.7.7.tgz"
@@ -1028,6 +1047,11 @@
   integrity sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA==
   dependencies:
     undici-types "~7.16.0"
+
+"@typescript-eslint/types@^8.47.0":
+  version "8.51.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-8.51.0.tgz#6996e59d49e92fb893531bdc249f0d92a7bebdbb"
+  integrity sha512-TizAvWYFM6sSscmEakjY3sPqGwxZRSywSsPEiuZF6d5GmGD9Gvlsv0f6N8FvAAA0CD06l3rIcWNbsN1e5F/9Ag==
 
 "@webassemblyjs/ast@1.14.1", "@webassemblyjs/ast@^1.14.1":
   version "1.14.1"
@@ -3337,7 +3361,8 @@ minimist@^1.2.6:
 
 mocha-make-stub@^2.3.2:
   version "2.3.2"
-  resolved "https://registry.npmjs.org/mocha-make-stub/-/mocha-make-stub-2.3.2.tgz"
+  resolved "https://registry.yarnpkg.com/mocha-make-stub/-/mocha-make-stub-2.3.2.tgz#fc4012ecf8076cbe6531768c69aa0a7660684541"
+  integrity sha512-oBo9qI78kAevQtMP53rkpbaCU73l7vxIHlIM8wDOvfCUEyjfX1E40dY9ULzbamJ6LABdCgobVt0KaJ0OozmPnA==
   dependencies:
     sinon "1.*"
 
@@ -3627,6 +3652,11 @@ picomatch@^2.0.4, picomatch@^2.2.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
+
+picomatch@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.3.tgz#796c76136d1eead715db1e7bad785dedd695a042"
+  integrity sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==
 
 pify@^4.0.1:
   version "4.0.1"

@@ -1,8 +1,13 @@
 import js from '@eslint/js'
+import stylistic from '@stylistic/eslint-plugin'
 
 export default [
   js.configs.recommended,
   {
+
+    plugins: {
+      '@stylistic': stylistic
+    },
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -31,6 +36,7 @@ export default [
       },
     },
     rules: {
+      '@stylistic/indent': ['error', 2],
       // Error prevention (errors)
       'no-undef': 'error',
       'no-const-assign': 'error',

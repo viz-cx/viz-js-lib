@@ -1,0 +1,21 @@
+{
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.fixAll.tslint": "always",
+    "source.fixAll.stylelint": "always"
+  },
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "eslint.codeActionsOnSave.mode": "problems",
+  "eslint.format.enable": true
+}
